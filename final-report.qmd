@@ -1,0 +1,2215 @@
+---
+title: "Final Report"
+author: "Radiah Khan '28 | Faculty Advisor: Dr. Kementari Whitcher"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    fig-cap-location: top
+editor: source
+code-fold: true
+execute: 
+  echo: true
+  warning: false
+  error: false
+  message: false
+knitr:
+  opts_chunk: 
+    message: false
+bibliography: references.bib
+
+---
+
+```{r, include=FALSE}
+library(dplyr)
+library(tidyverse)
+library(dae)
+library(Stat2Data)
+library(dae)
+library(Stat2Data)
+library(datarium)
+library(ggplot2)
+library(ggpubr)
+library(rstatix)  
+library(tmap)
+library(ggthemes)
+library(cartogram)
+library(ggrepel)
+library(binom)
+library(car)
+library(exactci)
+library(PropCIs)
+library(gam)
+library(mfx)
+library(pROC)
+library(flextable)
+library(emmeans)
+library(treemapify)
+library(flextable)
+library(knitr)
+library(kableExtra)
+library(gt)
+library(dplyr)
+library(tidyr)
+library(highcharter)
+library(webshot2)
+library(readxl)
+library(gridExtra)
+
+
+```
+
+# Acknowledgment
+
+I would like to express my deepest gratitude to my faculty advisor, Dr. Kementari Whitcher for being incredibly supportive not only as a teacher but also as a motivator every step of the way. In the past 8 weeks, there have been many times when working with a data set built from scratch felt intimidating, but with the supervision of Dr. Kementari Whitcher, I learnt to think as a statistician. This research would not have been possible without the amazing Statistical and Data Sciences Department at Smith College, which gave me unwavering support from the beginning. Furthermore, I would like to acknowledge Professor Randi Garcia, the chair of the department, whose support was pivotal to the completion of this project. I am grateful to every faculty member in the department who continues to be a source of inspiration through everything. Additionally, I am grateful for the generous funding from the Summer Undergraduate Research Fellowship at Smith College that made this project a reality. Special thanks to the Assistant Director of Sustainability at The Center for the Environment, Ecological Design and Sustainability (CEEDS), Becca Malloy – who provided Smith College dining data and graciously answered every question that came along the way. Last but not least, I would like to thank my niece, my other family members and my friends back home – who are my constant source of strength.
+
+\newpage
+
+# Abstract
+
+This study examines procurement of food purchases in the dining sector of higher studies institutions in the United States and how it evolved over the course of time. It discusses the aspects of ethically produced food, locally sourced food, dining budget and sustainability in colleges. The goal of this study is to explore this data set through exploratory data analysis and statistical tests. The data set used in this study was compiled from two sources. For Smith College-specific data, we collected them from the Center for the Environment, Ecological Design and Sustainability (CEEDS) at Smith College. For other colleges used in this study, we obtained data from a framework named the Sustainability Tracking Assessment & Rating System (STARS), created by the Association for the Advancement of Sustainability in Higher Education (AASHE). We aim to analyze how dining services have changed over the years in private and flagship institutions across the 50 states in the United States of America. The study will conduct both cross-institution analysis and within-institution analysis between these two categories. It investigated statistical analyses in this data set to identify any possible correlations between variables within the standards of the STARS framework. The statistical analysis methods included stratified random sampling, logistic regression, hypothesis testing (ANOVA, Repeated Measure ANOVA), T-test, One-way Chi Square, Two-way Chi Square, and Regression Analysis. The data in this study points to patterns in purchasing trends in universities and their effects on sustainability metrics (Budget class, Total Budget, Ethically Produced Rate, Locally produced food percentage etc.). The findings are divided into three areas: Smith College Trends in Food Purchasing, Five College Consortium Comparison on Locally Sourced Produce, and Institutional Comparisons Across the United States.
+
+\pagebreak
+
+# Introduction
+
+We will introduce the sources of the data used in this study.
+
+## STARS AASHE {#sec-intro-stars}
+
+The @stars framework created a sustainability rubric to score higher education institutions to ensure continued improvement in different areas, such as academics (AC), engagement (EN), operations (OP), and planning & administration (PA). These areas have sub sectors, which are sustainability course offerings, applied learning, sustainability research, responsible research and innovation, outreach and communication, co-curricular activities, staff engagement and training, sustainability and culture assessment, civic engagement, community partnerships, continuing education, shared facilities, inter-campus collaboration, building design and construction, building operations and maintenance, water use, ecologically managed grounds, energy use, greenhouse gas emissions, dining service procurement, food recovery, sustainable procurement, purchase goods, and materials management, Waste Generation and Recovery, Vehicle Fleet, Commute Modal Split, Air Travel,Sustainability Coordination, Commitments and Planning, Institutional Governance, Sustainable Investment Program, Investment Holdings, Institutional Climate, Racial and Ethnic Representation, Gender Parity, Affordability and Access, Student Success, Health, Safety and Well being, Employee Rights, Pay Equity, and Living Wage.
+
+The data set used in this study is extracted from the Operations sector, with the sub-sector of Dining Service Procurement (listed as OP7). Most of the universities in this study use the STARS version 2.2.For some occurrences it is listed from version 3.0 or version 2.1.
+
+The STARS framework awards institutions ratings of five levels: Platinum, Gold, Silver, Bronze, or Reporter.
+
+Under the Food and Dining impact area in the Operations category the total point available is 8 (version 2.2)
+
+This is how they breakdown the score :
+
+```{r, include=FALSE}
+table <- data.frame(
+  Credit = c("Food and Beverage Purchasing", "Sustainable Dining"),
+  Point = c("6", "2"))
+```
+
+```{r tab:scoresystem, echo=FALSE}
+kable(table, 
+      col.names = c("Credit", "Point"), 
+      align = c("c", "c"),
+      caption = "Credit system for dining impact area (Version 2.2)") |> 
+  kable_styling(full_width = TRUE, position = "center")
+
+```
+
+STARS framework also integrates itself with Sustainable Development Goals @SDG goals in the version 2.2 @tech-v2.2. Here is the flow of how each area correlates with fulfilling SDG Goals by the United Nations:
+
+![](images/image2.png)
+
+The data for creating this chart were extracted from the technical manual.[^1] The visualization was made with lucid chart[^2]
+
+[^1]: Page 178-179 in the version 2.2 technical manual.
+
+[^2]: https://www.lucidchart.com/ is a tool to make flow charts that we used to conceptualize the SDG goals written in the technical manual.
+
+The applicable criteria for this study depended on the availability of data points. For the majority of the data points, the score was out of 6, the other instances, it was out of 8 and 4. So the relevant credit areas are food and beverage percentage meeting sustainability criteria (6 credits) and dining services percentage spent with social impact suppliers (2 credits).
+
+The minimum requirements for these credits are assessed by 2 metrics in version 3.0:
+
+-   Food and beverage expenditure
+-   Supplier attributes
+
+The target to earn full points here are within 2 metrics as well:
+
+-   Weighted cost of purchased food and beverages that meet sustainability criteria \>= Total food and Beverage spend
+
+-   Social impact supplier spend needs to be equal to or higher than 10% of the whole dining budget
+
+Now the foods purchased by the institutions need to meet a certain sustainability or ethical criteria set by STARS AASHE. The standards here are:
+
+-   I-FOAM Organics International or endorsed by them
+-   ISO Type 1 ecolabel
+-   ISEAL Alliance Member Organization
+-   Global Ecolabelling Network Member Organization
+-   Anchors in Action Aligned Framework
+-   Monterey Bay Aquarium Seafood Watch
+-   Participatory Guarantee System (PGS)
+-   Short food supply chain (SFSC)
+-   Small Producers' Symbol (SPP)
+-   World Fair Trade Organization (WFTO) or Fair Trade Federation (FTF) membership
+
+In total, AASHE has 55 certifications for non-seafood items and 7 standards for seafood items around the world. The food categories falling into these certification categories are Fresh food (produce, eggs, meat, shellfish), Packaged/ready-to-eat foods (spices, oil, sugar, grains, baked goods, candies, frozen food, dairy products), beverages (sports drinks, fruit juices, tea, coffee, bottled water, and any liquids)
+
+The STARS framework has developed a decision criterion for different kinds of food types to be categorized as sustainable/ethical.
+
+Given it is a self reporting tool, these are the documentations used by the STARS framework.
+
+-   The year the performance period ended for food and beverage expenditure
+-   Sustainable/Ethically Produced Rate
+-   Plant-based food rate
+-   Inventory
+-   Any data limitation
+-   Methodology Description
+
+\
+This is how STARS defined their decision criteria in their technical manual of the 3.0.1 version @tech
+
+![](images/image5-01.png){fig-align="center"}
+
+The data for creating this chart were extracted from the technical manual.[^3] The visualization was made with lucid chart[^4]
+
+[^3]: Page 169-170 in the version 3.0.1 technical manual.
+
+[^4]: https://www.lucidchart.com/ is a tool to make flow charts that we used to conceptualize it.
+
+## CEEDS {#sec-intro-ceeds}
+
+CEEDS have collected data adhering to STARS framework.
+
+They use several categories to label food to indicate sustainability. Each of these categories are from a student-initiated national effort to have significant positive change in campus food systems in 2008.
+
+-   Real Food : It is a holistic term to categorize food that caters to consumers, producers, communities and every stakeholders. In 2008, students and advisers came up with a framework that defines what foods fall under Real Food. It is designed to encourage sustainable and fair producers. The evaluation of production is also emphasized here. Ecologically Sound, Local, Humane and Fair are real food category.
+
+-   Sustainable Food : This term is defined by the STARS framework with their certification in the @sec-intro-stars sector.
+
+-   Local : The food needs to be procured by -
+
+    -   Nearby farms, ranches, boats and businesses that are locally owned
+    -   Mid size food businesses
+
+    However, each institutions reports "local" differently at times. According to @local, here is how colleges define their food as "local":
+
+    ![Source : Measuring Up: When, How, and Why to Define "Local"](images/clipboard-3697887925.png)
+
+-   Fair : The workers need to be ensured of these rights-
+
+    -   Have a safe environment to work in
+
+    -   Receive fair compensation
+
+    -   Right to organize
+
+    -   Right to a grievance process
+
+    -   Equal opportunity for employment
+
+-   Humane : Animals need to be ensured of these health conditions-
+
+    -   Low stress environment
+    -   Administer drugs only when diseases are diagnosed
+
+# Sampling Method {#sec-sample}
+
+There are two sampling methods that were used for this study. The first one is how STARS collects their data and the second one is how we built the data set used for this study.
+
+## STARS Framework {#sec-star-sample}
+
+The framework uses Representative Sampling — which means all of the samples in the population have an equal chance of being selected to represent the whole population.
+
+All of the reporting institutions have two choices: One year period purchases or a representative sample that includes one academic term or equivalent.
+
+However, there are some criterion that institutions need to consider while reporting.
+
+-    Needs to be within the previous 3 years Seasonal purchases
+
+-   Self operated/contracted dining service reports
+
+-   Include retail outlets managed by institution/contractor
+
+-   Exclude independent operators, vending etc
+
+## Research Method {#sec-research-method}
+
+This research used stratified random sampling to create the data set. One stratification variable was type of institution: Flagship Institutions and Private Institutions. The second variable was State, with all 50 US states and the District of Columbia included. This process of stratification was based on institution type and geographical location. First, we listed all the flagship and private institutions in the United States, with their states. Subsequently, we matched their data availability in the @aashe reports. Following that, we created two separate data sets, one for flagship, and the other for private universities.
+
+### Private Institutions
+
+We collected all of our data from the @aashe website.
+
+For each state, we had more than one private institution. We randomly selected one institution from each state. We faced two cases in this. The first case example was Florida; which had 13 private institutions. We chose a random number from 1-13 using a simple random number generator. We got the number 4; hence we chose the institution that was at the fourth place in our list. The second case example was in Colorado where we had 7 institutions. We randomly generated the number 5. However, the selected institution did not have the dining procurement data included in their report. In cases like this we moved to the immediate next institution, and kept progressing in order until we found valid dining data to use for the study.
+
+### Flagship Institutions
+
+Some of the states have multiple flagship universities (NY, TX, IN, WY), so we used all of them instead of randomly selecting one. The states not found in the later analysis are the ones that were not present in the STARS framework.
+
+After creating the two data sets; we compiled them all together and later cleaned them up. Below is the amount of data flow we created after processing and cleaning the data.
+
+## Data Selection Flow {#sec-data-selection}
+
+To clean the data set, the criteria for filtering out data rows/states were: - Absence of value in at least 50% of used variables for the analysis - No dining procurement data in any institutions in the entire state
+
+![Data Selection Flow for the Final Dataset](images/image4-01.png){fig-align="center"}
+
+# Research Questions {#sec-research-questions}
+
+In this study, we want to examine the dining sourcing and dining performance across three sectors: Smith College, the Five College Consortium, and colleges across the United States.
+
+## Smith College {#sec-research-smith}
+
+-   Has the sourcing of local foods proportion have changed over the course of 2017-2018?
+-   Is the likelihood of a food item being locally sourced associated with its cost?
+
+## Five College Consortium {#sec-research-consortium}
+
+-   How do the sourcing of sustainable and local items in the dining area differ among five colleges?
+
+## All Colleges {#sec-research-all}
+
+-   Do flagship institutions spend more money on dining than private institutions and how does it affect their score?
+-   How does the dining performance score change over the years?
+-   Does the STARS rating differ in institution categories?
+-   How does the ethically produced rate differ in institution categories?
+-   How are the key metric (adhered to STARS Framework) used in this study correlated across institutions?
+
+# Data Variables Used {#sec-data-variable}
+
+For this study, we selected variables among the available variables in STARS framework templates.
+
+## Budget Class {#sec-budget-class}
+
+There were 3 major ranges of budget institutions have created for themselves. It is important to note that it had 1 level noted in Canadian dollars so we converted it to fit in the 3 ranges. This is the total dining budget of each institution for the reporting period.
+
+We then divided the 3 ranges to 3 classes as shown in the table below
+
+```{r, include=FALSE}
+table2 <- data.frame(
+ Budget = c("1 million - 4.9 million", "5 million - 9.9 million", "10 million or more"),
+
+  Class = c("1", "2", "3"))
+```
+
+```{r tbl-budgetclass, echo=FALSE}
+kable(table2, 
+      col.names = c("Budget", "Class"), 
+      align = c("c", "c"),
+      caption = " ") |> 
+  kable_styling(full_width = TRUE, position = "center")
+
+
+
+
+```
+
+## Score Ratio {#sec-score-ratio}
+
+The points earned by institutions in the impact area of food and dining had two score scales : out of 6 and out of 8; depending on the year. To keep the calculation consistent over all years; we calculated the proportion of the score to the total possible as a score ratio.
+
+For example @tbl-score-ratio shows how we calculated the score ratio for these two cases. 
+```{r tbl-score-ratio, echo=FALSE}
+table3 <- data.frame(
+ ` Score given by STARS` = c ("3/6", "4/8"),
+ `Score Ratio` = c("0.5", "0.5")
+)
+kable(table3, caption = "")
+```
+
+
+## Ethically Produced Rate {#sec-ethical-rate}
+
+STARS provides an inventory template to institutions to document sustainable/ethical produces with proper justification of inclusion with these information : Product name, label, brand, description, certification of sustainability standard.
+
+## Year {#sec-year}
+
+The study reported two latest years of each institutions’ reports. The first latest year has been denoted as Year 1 and the second latest year has been denoted as Year 2.
+
+## Total Food and Beverage Expenditure {#sec-Total-Food-and-Beverage-Expenditure}
+
+Institutions need to report the following categories of food: Meat(including frozen or canned), Dairy (anything that includes milk), Poultry, Fish/Seafood, Eggs, Produce, Baked goods, Grocery/Staples, Coffee-Tea, Beverages. All of these categories need to be included to calculate the total food and beverage expenditure.
+
+## Category {#sec-Category}
+
+As mentioned above, the institutions reported in the database are divided into two categories: Flagship and Private.
+
+Flagship : Flagship universities are publicly funded research institutions which are the largest/oldest in each state.
+
+Private : Private universities are not typically funded by the government and often run on private endowment.
+
+## Rating Status{#sec-rating-status}
+
+There are five levels that STARS AASHE rates an institution. This is the total score breakdown from the technical manual that denotes the total score (on all of the combined sectors above) an institution needs to have. Reporter institutions are any that submitted a report, but do not have a minimum score that earns a STAR rating.
+
+This data is sourced from @stars
+
+![Minimum Percentage Score Needed for Achievement Levels in STARS V2.2](images/image7.png){fig-align="center"}
+
+# Results {#sec-results}
+
+We will do exploratory data analysis on this data set alongside statistical analysis to identify any association and patterns.
+
+This section will have three sub-sections:
+
+-   **Smith College Analysis**\
+    Using the data we obtained from CEEDS, we will analyze the trends of dining sourcing between 2017, 2018, and 2023.
+
+-   **Five College Consortium Analysis**\
+    We will analyze what percentage of spending was allocated for local products in each college to do a comparison.
+
+-   **All Institutions Combined Analysis**\
+    We will conduct tests to identify trends and patterns across representative colleges from all U.S. states.
+
+## Smith College {#sec-smith-college}
+
+For analyzing the food procurement at Smith College, its' trend, and how the sourcing changed throughout time; we used the data sets of the year 2017, 2018 and 2023. It is important to note that 2023 data is not published in the STARS AASHE website. It is provided to us by CEEDS.
+
+```{r, include=FALSE}
+library(readxl)
+library(binom)
+library(exactci)
+library(PropCIs)
+library(epitools)
+library(vcd) 
+library(vcdExtra)
+library(tidyverse)
+library(car)
+library(flextable)
+```
+
+```{r, include=FALSE}
+tests_smith <- data.frame(
+  Variables = c("Category, Local", "Local_2017, Cost_2017","Local, Cost"),
+  Test = c("Chi Square", "Logistic Regression", "Logistic Regression")
+)
+```
+
+```{r include=FALSE}
+flextable(tests_smith)|>
+  set_caption("Statistical Tests Conducted in Smith College Data")|>
+  autofit()|>
+  theme_apa()
+```
+
+### Defining the variables used
+
+The variables used for analyzing Smith College data are shown in @tbl-variable
+
+```{r tbl-variable, echo=FALSE}
+smith_variables <- data.frame(
+  Variable = c("Local_2017", "Local_2018", "Cost_2017", "Cost_2018", "Category", "local_proportion", "count_yes", "count_no"),
+  Type = c("Binary", "Binary", "Numerical", "Numerical", "Categorical", "Numerical","Numerical", "Numerical"),
+  Interpretation = c(
+    "Coded as 1(local) and 0 (non-local) in 2017",
+    "Coded as 1(local) and 0 (non-local) in 2018",
+    "Price of each food item in 2017",
+    "Price of each food item in 2018",
+    "STARS standard categories of food that calculates to total food and beverage expenditure", 
+    "The proportion of food categorized as local",
+    "The count of food categorized as local",
+    "The count of food categorized as non-local"
+  )
+)
+
+kable(smith_variables, caption = " ")
+
+```
+
+```{r, include= FALSE}
+library(readxl)
+logistical_regression_2017 <-  read_excel("~/Downloads/Smith_College_RFC_assessment-2017-10and_2018-02 (2)-2.xlsx", sheet = "Logistic-regression")
+
+
+
+colnames(logistical_regression_2017) <- c("Local_2017", "Cost_2017", "Local_2018", "Cost_2018")
+logistical_regression_2017
+```
+
+```{r, include=FALSE}
+library(dplyr)
+logistical_regression_2017 <- logistical_regression_2017 |>
+dplyr::select( "Local_2017"    ,  "Cost_2017"            )
+
+dplyr::select(logistical_regression_2017, Local_2017, Cost_2017)
+
+```
+
+### Food source and Cost 
+
+This analysis will model relationship between food source (local vs non-local) and their cost through logistic regression. 
+
+The response binary variable is (Local_2017 and Local_2018) and the categorical predictor  variable is (Cost_2017 and Cost_2018) 
+
+In the response variable:
+
+- $1$ = The item is locally sourced  
+- $0$ = The item is not locally sourced
+
+We will test the following hypotheses:
+
+- **Null hypothesis** ($H_0$): $\beta = 0$  
+The source of procurement (local/non-local) has no effect on the cost.
+
+- **Alternative hypothesis** ($H_1$): $\beta \neq 0$  
+The source of procurement (local/non-local) has a significant effect on the cost.
+
+The significance level for this test is $p = 0.05$, and the confidence interval is $95%$.
+
+This analysis will be conducted for the years $2017$ and $2018$.
+
+
+#### 2017
+
+For this test, we used the variable local and cost for the year $2017$ to perform a logistic regression using a generalized linear model. This model examines the effect of cost on the probability of a food item being locally sourced. 
+
+
+```{r, echo=FALSE}
+fit2017<-glm(Local_2017 ~Cost_2017,family=binomial(link=logit),data=logistical_regression_2017)
+summary(fit2017)
+```
+
+According to the output shown above, the p value is $0.00052$ The p value is lower than the $0.05$ significance level; so the result is statistically significant. That means, the local/non local status has a statistically significant effect on the cost outcome.
+
+To visualize how well the model works, see @fig-logistic-regression-2017
+
+```{r fig-logistic-regression-2017, echo=FALSE}
+
+plot(jitter(logistical_regression_2017$Local_2017, 0.08) ~ logistical_regression_2017$Cost_2017,
+     main = "Scatterplot of Logistical Regression Analysis (2017)",
+     xlab = "Cost",
+     ylab = "Local Status (Jittered)")
+
+library(gam) # for fitting generalized additive models
+gam.fit <-gam(Local_2017 ~ s(Cost_2017), family=binomial, data=logistical_regression_2017) # s = smooth funct.
+curve(predict(gam.fit, data.frame(Cost_2017=x), type="resp"), add=TRUE) # plots generalized additive model smoothing fit
+fit <-glm(Local_2017 ~ Cost_2017, family=binomial, data=logistical_regression_2017) # link=logit is default
+curve(predict(fit, data.frame(Cost_2017=x), type="resp"), add=TRUE) # logistic regression fit is added to the plot > summary(fit)
+
+```{r, include = FALSE}
+model_data <- model.frame(fit2017)
+
+```
+
+Now to see how well the model works across every possible threshold (not just the significance level), we will calculate the area under the curve.
+
+```{r fig-roc-2017, echo=FALSE}
+fit2017 <-glm(Local_2017 ~ Cost_2017, family=binomial, data=logistical_regression_2017)
+rocplot <- roc(response = model_data$Local_2017, predictor = fitted(fit2017))
+plot.roc(rocplot, legacy.axes=TRUE) # Specficity on x axis if legacy.axes=F
+auc_value <- auc(rocplot)
+
+text(x = 0.2, y = 0.2, labels = paste("AUC =", round(auc_value, 4)), adj = 0, cex = 1.2, col = "black")
+```
+
+The higher the area under curve, the better the prediction power of the model. The range is 0 to 1. Here the area under the curve is 0.5683; which is better than baseline. Hence this is a significant predictor.
+
+To get better performance, we added another variable in the categorical variable (the squared amount of the cost), but the area under the curve increased slightly.So, the change is not significant.
+
+Given the nature of the data, there is a limited amount of data. With an addition of a significant variable (that we may not have) the model could work better.
+
+#### 2018
+
+```{r, include=FALSE}
+setwd("~/Downloads") 
+logistic_regression_2018 <-readxl::read_excel("Logistic Regression-2018.xlsx")
+logistic_regression_2018
+```
+We will conduct the same test with 2018 data as well to see if the association is statistically significant or not. 
+```{r, echo=FALSE}
+fit2018<-glm(Local ~Cost,family=binomial(link=logit),data=logistic_regression_2018)
+summary(fit2018)
+
+```
+
+From the results we can see that the p value is $0.000000000013$ so p \< 0.05 (our significance level); so the result is statistically significant similar to 2017.
+
+```{r fig-lr-2018 , echo=FALSE}
+lr_plot2 <-
+plot(jitter(Local, 0.08) ~ Cost, data=logistic_regression_2018,
+     main = "Scatterplot of Logistical Regression Analysis (2018)",
+     xlab = "Cost",
+     ylab = "Local Status (Jittered)")
+
+library(gam)
+gam.fit <- gam(Local ~ s(Cost), family=binomial, data=logistic_regression_2018)
+curve(predict(gam.fit, data.frame(Cost = x), type="resp"), add=TRUE)
+
+fit <- glm(Local ~ Cost, family=binomial, data=logistic_regression_2018)
+curve(predict(fit, data.frame(Cost = x), type="resp"), add=TRUE)
+auc_value <- auc(rocplot)
+
+text(x = 7000, y = 0.2, labels = paste("AUC =", round(auc_value, 4)), adj = 0, cex = 1, col = "black")
+
+
+lr_plot2
+
+
+```
+
+The @fig-lr-2018 shows that more values cluster around lower cost.
+
+```{r, include=FALSE}
+model_data_2 <- model.frame(fit2018)
+```
+
+```{r, echo=FALSE}
+fit2018 <-glm(Local ~ Cost, family=binomial, data=logistic_regression_2018)
+rocplot <- roc(response = model_data_2$Local, predictor = fitted(fit2018))
+plot.roc(rocplot, legacy.axes=TRUE) # Specficity on x axis if legacy.axes=F
+auc(rocplot) # auc = area under ROC curve = concordance index
+```
+
+The higher the area under curve, the better the prediction power of the model. The range is 0 to 1. Here the area under the curve is 0.7221; which is better than baseline. Hence this is a significant predictor.
+
+It can be concluded here that for both of the years, the products that cost higher were more likely to be local for Smith College.
+
+## Association between categories of food purchased and local procurement status
+
+Now to what extent is this local status of products associated with the categories Smith College purchased? Over the years (2017-18), Smith College has produced 7 consistent categories of food for their dining purposes. The categories are : 
+- Baked
+- Beverages
+- Dairy
+- Grocery
+- Meat
+- Produce
+
+
+We will use two-way chi square test of independence to test whether Category and Local-procurement status is associated or not.If they are not independent, then some categories have higher local proportion than the other.
+
+- **Null Hypothesis**  ($H_0$): The two variables are independent.
+
+- **Alternative Hypothesis** ($H_1$): The two variables are not independent.
+
+We start by extracting the Category column and Local column from the 2017 and 2018 data set. Then, we grouped the data by the category. Furthermore, we calculated the amount of local item in that category and the non-local item amount as well.
+
+### 2017
+
+Firstly, we analyze 2017 data with these two variables: Local and Category
+
+```{r, include=FALSE}
+library(readxl)
+
+one_way_2017 <- read_excel(path = "~/Downloads/Smith_College_RFC_assessment-2017-10and_2018-02 (2)-2.xlsx",sheet = "10-17"
+)
+```
+
+```{r, include=FALSE}
+one_way_2018 <- read_excel(path = "~/Downloads/Smith_College_RFC_assessment-2017-10and_2018-02 (2)-2.xlsx",sheet = "2-18"
+)
+```
+
+```{r, include=FALSE}
+one_way_2017_tibble_1 <- one_way_2017 |>
+  dplyr::select(Category, Local) |>
+   dplyr::group_by(Category, Local) |>
+   dplyr::summarise(count = n(), .groups = "drop") |>
+   dplyr::group_by(Category) |>
+   dplyr::mutate(
+    proportion = count / sum(count)
+  ) |>
+  pivot_wider(names_from = Local, values_from = c(count, proportion)) |>
+  mutate(
+    total_count = count_yes + count_no
+  ) |>
+  filter(!is.na(count_yes))
+
+kable(one_way_2017_tibble_1, caption = "")
+
+one_way_2017_tibble_1
+```
+
+```{r, include=FALSE}
+one_way_2018_tibble_2<- one_way_2018 |>
+  dplyr::select(Category, Local) |>
+   dplyr::group_by(Category, Local) |>
+   dplyr::summarise(count = n())|>
+   dplyr::group_by(Category) |>
+   dplyr::mutate(proportion = count / sum(count))|>
+  pivot_wider(names_from = Local, values_from = c(count,proportion))|>
+ filter(!is.na(count_yes)) |>
+mutate(total_count = count_yes + count_no)
+one_way_2018_tibble_2
+```
+
+```{r, include=FALSE}
+one_way_2017_tibble <- one_way_2017_tibble_1 |> 
+  filter(!is.na(count_yes))
+```
+
+```{r, include=FALSE}
+one_way_2018_tibble <- one_way_2018_tibble_2 |> 
+  filter(!is.na(count_yes))
+```
+
+```{r, include=FALSE}
+two_way_2017<- one_way_2017_tibble |>
+ dplyr::filter(Category != "eggs", Category != "teacoffee") |>
+
+  dplyr::select(Category, count_yes,count_no) 
+```
+
+```{r, include = FALSE}
+two_way_2017_table <- two_way_2017 |>
+  tibble::column_to_rownames(var = "Category") |>
+  as.matrix() |>
+  as.table()
+print(two_way_2017_table)
+```
+
+```{r, echo=  FALSE}
+chisq.test(two_way_2017_table, correct = FALSE)
+```
+
+The p value is extremely close to 0; so it is less than the significance level 0.05.
+
+Hence we can reject the null hypothesis. It can be concluded that the two variables are not independent.If they are not independent, then some categories have a higher proportion of local than others.
+
+```{r fig-count-2017, fig.cap="", echo=FALSE}
+ggplot(data = two_way_2017,
+       aes (x = fct_reorder(Category, count_yes, .desc = TRUE),
+            y = count_yes))+
+   geom_col(fill = "royalblue") +
+  labs(
+    title = "Count of Local Products Purchased (2017)",
+    x = " ",
+    y = " "
+  ) +
+  theme_minimal() +
+theme(plot.title = element_text(hjust = 0.5, face = "bold"),
+      panel.grid.major=  element_blank(),
+      panel.grid.minor = element_blank())
+      
+```
+
+From @fig-count-2017 we can see that counts of product categories that are local, we can see that produce, grocery, meat, dairy has higher counts of local sourcing.
+
+### 2018
+Then, we analyze 2018 data with the same variables to see if it is not independent in 2018 as well.
+
+
+```{r, include=FALSE}
+two_way_2018<- one_way_2018_tibble |>
+ dplyr:: select(Category, count_yes,count_no) |>
+  dplyr::filter(!is.na(count_yes))
+```
+
+```{r, include=FALSE}
+two_way_2018_table <- two_way_2018 |>
+  tibble::column_to_rownames(var = "Category") |>
+  as.matrix() |>
+  as.table()
+print (two_way_2018_table)
+
+```
+
+After conducting the chi square test in 2018, we see the following results.
+
+```{r, echo=FALSE}
+chisq.test(two_way_2018_table, correct = FALSE)
+```
+
+The p value is extremely close to 0; so it is less than the significance level 0.05. Hence we can reject the null hypothesis. It can be concluded that the two variables are not independent.If they are not independent, then some categories have a higher proportion of local than others.
+
+Now that we know that for both of the years some categories have higher proportion of being local than the other ones, we will plot this.
+
+```{r fig-count-2018, fig.cap="", echo=FALSE}
+ggplot(data = two_way_2018,
+       aes (x = fct_reorder(Category, count_yes, .desc = TRUE),
+            y = count_yes))+
+   geom_col(fill = "royalblue") +
+  labs(
+    title = "Count of Local Products Purchased (2018)",
+    x = " ",
+    y = " "
+  ) +
+  theme_minimal() +
+theme(plot.title = element_text(hjust = 0.5, face = "bold"),
+      panel.grid.major=  element_blank(),
+      panel.grid.minor = element_blank())
+      
+
+```
+
+From the @fig-count-2018, we can see that our test results reflect on it. Dairy has the highest count of local purchases, followed by produce, grocery, meat and the other categories.
+
+## Category and Difference in Proportion from year 2017-2018
+
+Now that we know some categories have a higher count than the other. We want to test if the proportion of the categories which were local is significantly different between the year 2017 and 2018.
+
+```{r, include = FALSE}
+two_prop_test <- function(yes_2017, yes_2018, total_2017, total_2018) {
+test_result<-prop.test(x=c(yes_2017, yes_2018),n=c(total_2017, total_2018), correct = FALSE)
+print(test_result)
+}
+```
+
+```{r, include = FALSE}
+test_result_baked <- two_prop_test(18,2,172,278)
+```
+
+```{r, include = FALSE}
+test_result_bev <- two_prop_test(6,8,154,209)
+```
+
+```{r, include = FALSE}
+test_result_dairy <- two_prop_test(53,411,207,545)
+```
+
+```{r, include = FALSE}
+test_result_grocery <- two_prop_test(79,168,1019,1023)
+```
+
+```{r, include= FALSE}
+test_result_meat <- two_prop_test(58,37,143,120)
+
+```
+
+```{r, include = FALSE}
+test_result_poultry <- two_prop_test(4,4,40,39)
+```
+
+```{r, include = FALSE}
+test_result_produce <- two_prop_test(115,188,495,533)
+```
+
+After conducting the two proportion test on each category here are the results in @tbl-two-prop
+
+```{r tbl-two-prop, echo=FALSE}
+test_results_two_prop_test <- data.frame(
+  
+  Categories = c("baked", "beverages", "dairy", "grocery", "meat", "poultry", "produce"), 
+  `p value` = c("less than 0.05", "not significant", "less than 0.05", 
+              "less than 0.05", "not significant", "not significant", 
+              "less than 0.05")
+)
+
+kable(test_results_two_prop_test, caption = " ")
+
+
+
+
+
+```
+
+The significance level is 0.05. From the table we can see baked, dairy, grocery and produce has p \< 0.05, hence the proportion of these categories which were local is significantly different between the year 2017 and 2018.
+
+Now that we know the change was significant, we will plot these changes. 
+
+In @fig-local-slopegraph we can see that dairy had the highest increase in locally sourced proportion from the year 2017 to 2018. Followed by produce and grocery. Baked had a decrease in proportion.   
+
+```{r, include= FALSE}
+combined_evoluation <- data.frame(
+  Year = rep(c("2017", "2018"), times = 7), 
+  Category = rep(c("baked", "beverages", "dairy", "grocery", "meat", "poultry", "produce"), each = 2),
+  local_proportion = c(0.10465116,  0.007194245, 0.03896104,0.038277512,  0.25603865, 0.754128440,  0.07752699, 0.164222874, 0.40559441, 0.308333333, 0.10000000, 0.102564103,  0.23232323, 0.339963834 )
+)|>
+  mutate(local_proportion = round(local_proportion,2))
+
+combined_evoluation
+
+
+```
+```{r fig-local-slopegraph, fig.cap=" ", echo= FALSE}
+library(CGPfunctions)
+
+newggslopegraph(dataframe = combined_evoluation,
+                Times = Year,
+                Measurement = local_proportion,
+                Grouping = Category,
+                Title = "Local Produce Evolution at Smith College (2017 to 2018)",
+                SubTitle = "",
+                Caption = "By CEEDS Data",
+                DataLabelPadding = 0.1,
+                
+                DataLabelLineSize = 0.0123,
+                DataLabelFillColor = "lightblue",
+                ThemeChoice = "void")
+
+
+```
+
+## Cash Flow at Smith College Over the Year of 2017-18
+
+We know that the proportion in each category and their local-non local status is not independent. There is statistical association between these two variables.
+
+Now, we will visualize how the cash flow changed over the year (2017-2018) for the same categories.
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| include: false 
+
+Book3_6 <- read_excel("~/Downloads/SURF 2025 _ SDS _ Dr. Whitcher & Radiah-3/Smith College Data/Book3-6.xlsx")
+
+```
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| include: false 
+Book3_6_2 <- read_excel("~/Downloads/SURF 2025 _ SDS _ Dr. Whitcher & Radiah-3/Smith College Data/Book3-6-2.xlsx")
+```
+```{r fig-cash, fig.cap = "", fig.width=8, fig.height=6, echo=FALSE}
+ 
+#| error: true
+cost_distribution_plot  <- hchart(Book3_6
+  , 
+  "sankey",
+  hcaes(from = From, to = To, weight = Value, color = Color)
+) |>
+ hc_title(
+    text = "Cost Distribution per Category over 2017-18",
+    align = "center",                     
+    style = list(fontWeight = "bold")    
+  ) |>
+  hc_add_theme(hc_theme_ggplot2())
+cost_distribution_plot
+
+```
+@fig-cash shows the sankey diagram to visualize the cash flow from year 2017 to 2018. The width of the bands represent how high or low the cash amount is. The thicker the band the higher the cost.
+
+Here we can see that the money spent on Beverages and Poultry stayed the same (the bands have almost the same width). For the other categories the band width decreased over time; which means that the money spent on these categories decreased from 2017 to 2018.
+
+## Amount distribution in all categories in 2 years at Smith College (2017-2018)
+
+We are now analyzing how have the amount of items bought in each category changed over the course of this two year.
+
+```{r, fig-amount, fig.cap="", fig.width=8, fig.height=6, echo=FALSE}
+amount_distribution_plot <- hchart(Book3_6_2
+  , 
+  "sankey",
+  hcaes(from = From, to = To, weight = Value, color = Color)
+) |>
+ hc_title(
+    text = "Amount Distribution per Category over 2017-18",
+    align = "center",                     
+    style = list(fontWeight = "bold")    
+  ) |>
+  hc_add_theme(hc_theme_ggplot2())
+amount_distribution_plot
+
+
+```
+
+The @fig-amount shows that, most of the categories have increased in items except Meat category. It has decreased from 2017 to 2018.
+
+### Proportion of food type in 2023
+
+From @sec-intro-ceeds, we can see the categories of sustainable food Smith College has maintained in their dining system. 
+
+We have seen in 2017 and 2018 that Smith College has made effort to increase in locally sourced food. Depending on the data availability in 2023, we will see how Smith College allocated its dining money in all categories in the aforementioned section.
+
+
+```{r, include=FALSE, error = TRUE}
+group_total <- data.frame(
+  Group = c("Real", "Sustainable", "Local", "Fair", "Humane"),
+  Value = c(1511918.89, 441283.02, 892277.78, 116531.66, 180724.49)
+)
+group_total
+```
+
+```{r fig-tree-2023, fig.cap = "",fig.width=8, fig.height=6, echo=FALSE}
+plot <- ggplot(group_total, aes(area = Value, fill = Value, label = Group)) +
+  geom_treemap() +
+  geom_treemap_text(colour = "black",
+                    place = "centre",
+                    size = 16,
+                    grow = FALSE) +
+  scale_fill_gradientn(
+    name = "Total Spending (in Dollars",
+    colors = c("yellow", "lightblue", "blue"),
+    breaks = scales::pretty_breaks(n = 4),
+    labels = scales::label_comma()
+  ) +
+  labs(title = "Spending of each food produce type at Smith College in 2023") +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    legend.text = element_text(size = 6.5),
+    legend.title = element_text(size = 7)
+  )
+
+plot
+
+```
+
+@fig-tree-2023 shows that, Smith College spent the most amount of money in their Real Category.Following that, Local is the next category where second highest amount of money was spent.Fair and Humane Category had similar spending (around \$500000) which is the least in the range. Sustainable falls into a mid range in the money allocation.
+
+## Five College Consortium {#five-college-consortium}
+
+Five College Consortium consists of the five college in the Pioneer Valley area. The institutions are : University of Massachusetts Amherst, Smith College, Amherst College, Mount Holyoke College and Hampshire College.
+
+Among them, University of Massachusetts Amherst is the flagship university of Massachusetts. Now we will be conducting a cross-university analysis. We calculated each institutions’s total spending and looked over to the amount that was allocated to local spending—defined by the `Local` variable being marked as "1". We then added all the items that were labelled as local and divided that by the total spending to determine the proportion of their spending that was local.
+
+However, given the data availability, we used different years for each colleges.
+
+-   Smith College = 2018
+-   UMass Amherst = 2018
+-   Mount Holyoke College = 2018
+-   Hampshire College = 2021
+-   Amherst College = 2019
+
+So the year range is 2018-2021 depending on usability of data keeping it all consistent across colleges. It is important to note University of Massachusetts Amherst did not have Local sourcing variable, so we reported their percentage from their website @umass 
+
+### Sustainably Produced Percentage Comparison: Smith vs UMass vs Hampshire
+
+For Smith College, sustainable food covers four major categories in 2018 : Local, Fair, Ecological, Humane. If any of the product identified as true for any of these categories, we categorized them as sustainable.
+
+For @umass, they signed the Real Food Challenge Commitment and identified food that were third party verified(organic or humane)/ local-community sources.
+
+For Hampshire College, they did not have categories specified. However they provided a percentage of food that were third party verified/local-community based.
+
+```{r, include=FALSE}
+sustainable_five <- data.frame(
+  College = c("Smith College", "UMass Amherst", "Hampshire College"),
+  Percentage = c("23.38%", "23%", "33.02%")
+)
+sustainable_five
+
+```
+
+```{r, echo= FALSE}
+ggplot(data = sustainable_five, 
+        aes(x = fct_reorder(College, Percentage, .desc = TRUE), 
+             y = Percentage, fill = College)) +
+  geom_col(show.legend = FALSE, color = "black", width = 0.7) +
+  scale_fill_brewer(palette = "Set2") +
+  labs(
+    title = "Percentage of Sustainable Produce",
+    x = "",
+    y = " "
+  ) +
+ theme_minimal() |>
+  theme(
+    plot.title = element_text(face = "bold", size = 18, hjust = 0.5),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank()
+    
+  ) 
+  
+
+```
+
+```{r, include=FALSE}
+Smith_College_2018 <- read_excel("~/Downloads/SURF 2025 _ SDS _ Dr. Whitcher & Radiah-3/Smith College Data/Smith_College_RFC_assessment-2017-10and_2018-02 (2)-3.xlsx", 
+                                 sheet = "2-18") |>
+  dplyr::select("Local", "Fair", "Ecological", "Humane", "Cost") |>
+  mutate("Sustainable" = Local == "yes" | Fair == "yes" | Ecological == "yes" | Humane == "yes")|>
+  dplyr::select(Sustainable, Cost) |>
+  group_by(Sustainable)|>
+  summarize(total = sum(Cost, na.arm = TRUE))
+
+Smith_College_2018
+```
+
+### Locally Produced Percentage Comparison: Smith College vs Hampshire vs Mount Holyoke College vs Amherst College
+
+For Smith College, we only selected the local variable. The products that are local were calculated and then divided it by total cost of all local-non local products.
+
+For @umass, they signed the Real Food Challenge Commitment and identified food that were third party verified(organic or humane)/ local-community sources.
+
+For Hampshire College, they did not have categories specified. However they provided a percentage of food that were local-community based.
+
+```{r, include=FALSE}
+
+smith_18 <- one_way_2018 |>
+ dplyr:: select(Cost, Local)|>
+group_by(Local)|>
+  summarize(total = sum(Cost, na.arm = TRUE))
+ smith_18 
+ 
+  
+```
+
+```{r, include=FALSE}
+Amherst_College_2019 <- read_excel("~/Downloads/SURF 2025 _ SDS _ Dr. Whitcher & Radiah-3/Five College Data/Amherst College 2019.xlsx")
+View(Amherst_College_2019)
+```
+
+```{r, include=FALSE}
+library(janitor)
+amherst2019 <- Amherst_College_2019 |>
+  janitor::clean_names()
+
+amherst2019
+colnames(amherst2019)
+```
+
+```{r, include=FALSE}
+amherst_data <- amherst2019 |>
+  dplyr:: select("amount_spent", "local_community_based_2"   )|>
+  group_by(local_community_based_2)|>
+  summarize(total_cost = sum(amount_spent, na.rm = TRUE))
+amherst_data
+```
+
+```{r, include=FALSE}
+
+smith_2018 <- one_way_2018|>
+  dplyr:: select(Local, Cost)|>
+  group_by(Local)|>
+  summarize(total_cost = sum(Cost, na.rm = TRUE))
+smith_2018
+```
+
+```{r, include=FALSE}
+Mount_Holyoke_College <- read_excel("~/Downloads/SURF 2025 _ SDS _ Dr. Whitcher & Radiah-3/Five College Data/Mount Holyoke College.xlsx", sheet = "Sheet3")
+View(Mount_Holyoke_College)
+
+```
+
+```{r,include=FALSE}
+
+combined_five_college <- data.frame(
+  `College Name` = c("Smith College (2018)", "Mount Holyoke College (2018)", "Hampshire College (2021)", "Amherst College(2019)"),
+  `Local Percentage` = c(13.48, 9.51 ,26, 58),
+  Year = c(2018, 2018, 2021, 2019)
+)
+combined_five_college
+
+```
+
+```{r fig.width=8, fig.height=6, echo=FALSE}
+ggplot(data = combined_five_college, 
+        aes(x = fct_reorder(College.Name, Local.Percentage, .desc = TRUE), 
+             y = Local.Percentage, fill = College.Name)) +
+  geom_col(show.legend = FALSE, color = "black", width = 0.7) +
+  scale_fill_brewer(palette = "Set2") +
+  labs(
+    title = "Percentage of Locally Produced Purhcases",
+    x = "",
+    y = "Local Percentage (%)"
+  ) +
+
+  theme_minimal(base_size = 10) |>
+  theme(
+    plot.title = element_text(face = "bold", size = 15, hjust = 0.5),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank()
+    
+  ) 
+
+```
+
+## All College Categories Combined
+
+In this section, we will analyze all of the institutions across the United States. The analysis will be of three types. 
+-  Comparison Across Years
+-  Comparison Between Categories (Flagship and Private)
+-  Correlation between variables used in @sec-data-variable
+
+### Score Ratio- Budget Class
+
+We are going to analyze the three budget classes that we classified in the institutions across institutions in @tbl-budgetclass, the score ratio that we determined for the institutions @tbl-score-ratio and year (@sec-year) with a two way ANOVA test. 
+
+The two factor in this ANOVA test is `Budget Class` and `Year` where the dependent variable is the score ratio. 
+
+- **Null Hypothesis 1** : Budget Class has no effect on the score ratio. 
+- **Null Hypothesis 2**: Year has no effect on the score ratio.
+- **Null Hypothesis 3**: There is no interaction effect between the two factors.
+
+- **Alternative Hypothesis 1**: Budget Class has a significant effect on the score ratio.
+- **Alternative Hypothesis 2**: Year has a significant effect on score ratio.
+- **Alternative Hypothesis 3**: There is an interaction effect between two factors
+
+```{r, include=FALSE}
+library(readxl)
+combined <- Combined_Database_2 <- read_excel("~/Downloads/SURF 2025 _ SDS _ Dr. Whitcher & Radiah-3/Combined Data/Combined Database -2.xlsx", sheet = "Combined Data(Usable)")
+View(Combined_Database_2)
+```
+
+```{r, include= FALSE}
+combined_budget_score_1 <- combined |>
+dplyr::select(`Budget Class Year 1`, `Score ratio Year 1`, `Score ratio Year 2`)|>
+filter(!is.na(`Budget Class Year 1`), !is.na(`Score ratio Year 1`),!is.na(`Score ratio Year 2`) 
+  )
+```
+
+```{r, include=FALSE}
+combined_budget_score <-combined_budget_score_1 |>
+ pivot_longer(
+    cols = c("Score ratio Year 1", "Score ratio Year 2"),
+    names_to = "Year",                        
+    values_to = "value"                       
+  )
+```
+
+```{r, include=FALSE}
+library(palmerpenguins)
+library(knitr)
+```
+
+```{r, include=FALSE}
+summary_table_budget_score <- summary(combined_budget_score)
+```
+
+```{r, include=FALSE}
+kable(summary_table_budget_score, caption = "Summary of Budget Class and Sustainibility Score Ratio Over The Years")
+```
+
+```{r, include=FALSE}
+combined_budget_score <- combined_budget_score |>
+  mutate(Year = factor(Year)) |>
+  mutate(`Budget Class Year 1`= factor(`Budget Class Year 1`))|>
+   rename( `Budget Class`= `Budget Class Year 1`)
+combined_budget_score
+```
+
+```{r, include= FALSE}
+model_1 <- lm(value ~  `Budget Class`* Year,
+  data = combined_budget_score
+)
+```
+
+```{r, echo=FALSE}
+anova(model_1)
+```
+
+##### Result
+
+The significance level is 0.05. So since the p values are greater than 0.05, none of the factors are significant. Budget level and year do not make a difference ratio of score that is based on agglomerated sustainability of schools.
+
+## Total food spend, Score Ratio
+
+```{r, include=FALSE}
+combined_total_score <- combined |>
+  dplyr:: select(
+    `Score ratio Year 1`, 
+    `Score ratio Year 2`, 
+    `Total food and beverage expenditures  Year 1`, 
+    `Total food and beverage expenditures Year 2`
+  ) |>
+dplyr::rename(
+    `Year 1_S` = `Score ratio Year 1`,
+    `Year 2_S` = `Score ratio Year 2`,
+    `Year 1_T` = `Total food and beverage expenditures  Year 1`,
+    `Year 2_T` = `Total food and beverage expenditures Year 2`
+  ) |>
+  
+dplyr::mutate(
+    `Year 1_T` = as.numeric(`Year 1_T`),
+    `Year 2_T` = as.numeric(`Year 2_T`)
+  )
+
+```
+
+```{r, include=FALSE}
+combined_total_score_long <- combined_total_score |>
+  pivot_longer(
+    cols = c(`Year 1_S`, `Year 2_S`),
+    names_to = "Score ratio year",                        
+    values_to = "Score Ratio"                       
+  ) |>
+  pivot_longer(
+    cols = c(`Year 1_T`, `Year 2_T`),
+    names_to = "Budget Year",
+    values_to = "Total Budget"
+  )
+```
+
+```{r, include=FALSE}
+combined_total_score_cleaned <- combined_total_score_long |>
+  dplyr:: select(`Score Ratio`, `Total Budget`)
+combined_total_score_cleaned
+
+```
+
+```{r, include=FALSE}
+combined_budget_score_filtered <- combined_total_score_cleaned |>
+  filter(!is.na(`Score Ratio`)) |>
+    filter(!is.na(`Total Budget`)) 
+combined_budget_score_filtered
+
+```
+
+
+We performed a linear regression analysis here where the Total Budget is the independent variable and the Score Ratio is the dependent variable. 
+
+- **Null Hypothesis**: $H_0: \beta = 0$; There is no association between the independent and dependent variable 
+-  **Alternative Hypothesis**: $H_0: \beta \neq 0$; There is statistically significant association between the independent and dependent variable.
+
+```{r fig-scatter-budget, fig.cap="", echo=FALSE}
+ggplot(
+  data = combined_budget_score_filtered,
+  mapping = aes(
+    x = `Total Budget`,
+    y = `Score Ratio`
+  )
+) + 
+  geom_point()+
+  geom_smooth(method= "lm", se= FALSE, color = "red")
+```
+
+From the @fig-scatter-budget, we can see there is a weak positive relationship between the two variable.
+
+```{r,include=FALSE}
+library(janitor)
+```
+
+```{r, include=FALSE}
+cleaned_scores <- clean_names(combined_budget_score_filtered)
+
+glimpse(combined_budget_score_filtered)
+  
+```
+
+The resulting model shows that there is a weak but statistically significant positive association between the two variable. (t = 2.449 with 114 degrees of freedom, p \<0.05) 
+
+ **Linear Equation**:  
+  Score Ratio = 0.2092 + 5.047 * 10^-9 * Total Budget  
+  R-squared: 4.2%
+
+```{r, echo=FALSE}
+score_budget_model =lm(score_ratio ~ total_budget, data= cleaned_scores)
+summary(score_budget_model)
+```
+
+```{r, echo=FALSE}
+anova(score_budget_model)
+```
+
+So we reject the null hypothesis and conclude that $\beta \neq 0$, which means there is a statistically significant association between the two variables.
+
+```{r, include=FALSE}
+score_budget_model.stdres = rstandard(score_budget_model)
+cleaned_score_budget <- data.frame(cleaned_scores, score_budget_model.stdres)
+glimpse(cleaned_score_budget)
+```
+
+```{r, include=FALSE}
+ggplot(
+  data = cleaned_score_budget,
+  mapping = aes(
+    x = total_budget,
+    y = score_budget_model.stdres
+  )
+) + 
+  theme_classic()+
+  geom_point()
+```
+
+To check the normality of the residual plots for this analysis, we used a Q-Q plot to visualize it.
+
+```{r, echo=FALSE}
+qqnorm( score_budget_model.stdres,
+       ylab="Standardized Residuals",
+       xlab="Normal Scores")
+qqline( score_budget_model.stdres)
+```
+
+In here we can see that it performs reasonably well along most of the data with deviations from the expected pattern at the high end.
+
+Now, what does it mean in our context?
+
+The more an institution spent on its dining sector (based on the STARS categories), the higher its score ratio. This score indicates better performance in sustainable food procurement.
+
+It seems to be the case that institutions that have a larger student body and higher funding spend more money on food and beverages expenditure, eventually gets a higher score ratio.
+
+It is also important to reiterate that the score ratio criteria differ from year to year. The earlier year (Version 2.2 STARS) relied on 2 categories: Sustainable Dining, Food and Beverage Purchasing. Whereas recent years (Version 3.0.1 STARS) relied on two categories: Percentage of food and beverage spend that meets sustainability criteria and percentage of dining service spend with social impact suppliers. Converting their score to a ratio based on the total score possible made comparisons across years and institutions possible.
+
+## Score ratio and Category of Insitutions 
+Now we will conduct an analysis on the score ratio and the categories of institutions (Flagship and Private) to see if their mean score ratio differs or not. 
+
+### Year 1
+
+In this part, we compare the score ratios from two different category of institutions(flagship & private) for the first year of data of colleges. 
+
+-  **The null hypothesis** ($H_0$): The means of score ratio of the categories of institutions are equal.\\
+- **The alternative hypothesis** ($H_1$): The means of score ratio of the categories of institutions are not equal.
+
+The significance level is $0.05$.For visualizing the distribution of the data, we use a box plot before conducting the independent sample t-test.
+
+```{r, include = FALSE}
+score_school_category<-combined |>
+  dplyr::select(`Score ratio Year 1`, Status)|>
+  dplyr::rename(score_ratio = `Score ratio Year 1`,
+         category = Status) |>
+  dplyr::mutate(category = factor(category))  |>
+  dplyr::mutate(score_ratio = log(score_ratio))
+score_school_category
+```
+
+```{r, include=FALSE}
+score_school_category_cleaned <- score_school_category |>
+  filter(
+    (category == "Flagship" & score_ratio <= 0.5) |
+    (category == "Private" & score_ratio <= 0.75)
+    
+  )
+score_school_category_cleaned
+```
+
+```{r fig-score-category-year1, fig.cap=" ", echo=FALSE}
+ggplot(data = score_school_category_cleaned, mapping = aes(x = score_ratio, y = category, fill = category)) +
+theme_classic() +
+  theme(
+plot.title = element_text(hjust = 0.5, face = "bold"),
+ axis.text.x = element_text(angle = 45, hjust = 1)
+  )+
+  labs(
+    title = "Distribution of Score Ratios by School Category",
+    x = "Score Ratio",
+    y = "Value",
+    fill = "School Category",
+    caption = "Year 1"
+  )+
+ 
+  geom_boxplot() +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 3, color = "black")+
+  coord_flip()
+```
+
+In the @fig-score-category-year1, we removed outliers to improve normality. The median value is different in two categories. The private institutions show more dispersion compared to flagship institutions.
+
+Before conducting the t-test, we conduct a Levene test.
+
+```{r, echo=FALSE}
+ score_school_category_cleaned |>
+  levene_test(score_ratio ~ category)
+```
+
+We can see that the p \> 0.05 (significance level), so it is not statistically significant. Hence we do a t-test assuming equal variances.
+
+```{r, include=FALSE}
+library(rstatix)
+```
+
+```{r, echo=FALSE}
+t.test(score_ratio ~ category, data = score_school_category_cleaned, var.equal= TRUE)
+```
+
+While there is a slight difference in the means of Flagship and Private, it is not statistically significant. Flagship has lower mean than Private. The p-value is 0.4111 which is not less than p value of 0.05. So we fail to reject the null hypothesis that there is no significant difference between score ratio in different college categories.
+
+To put this in context,there appears to be no significant difference in the mean score ratio between flagship and private schools. From our previous test we saw that there is a positive significant association between dining expenditure and score ratio. We assumed that the category of colleges might play a role in the association. From the test we know that it is not significant.
+
+## Year 2
+
+Now we conduct the same process for data of year 2 of the reporting institutions.
+
+```{r, include=FALSE}
+score_school_category_2 <-combined |>
+  dplyr:: select(`Score ratio Year 2`, Status)|>
+  rename(score_ratio = `Score ratio Year 2`,
+         category = Status) |>
+  mutate(category = factor(category))  |>
+  #mutate(score_ratio = log(score_ratio))|>
+  filter(!is.na(score_ratio)) |>
+  filter(
+    (category == "Flagship") |
+    (category == "Private" & score_ratio <= 0.6)
+  )
+  
+score_school_category_2
+```
+
+```{r fig-score-category-year2, fig.cap=" ", echo=FALSE}
+ggplot(
+  data = score_school_category_2,
+  mapping = aes(
+    x = score_ratio,
+    fill = category
+    )
+  ) +
+  theme_classic() +
+  theme(
+plot.title = element_text(hjust = 0.5, face = "bold"),
+ axis.text.x = element_text(angle = 45, hjust = 1)
+  )+
+  labs(
+    title = "Distribution of Score Ratios by School Category",
+    x = "Score Ratio",
+    y = "Value",
+    fill = "School Category",
+    caption = "Year 2"
+  )+
+ 
+  geom_boxplot()
+```
+
+In the @fig-score-category-year2, we removed outliers to improve normality. The median value is slightly different in two categories. The private box is slightly wider than flagship box.
+
+From the levene test we can see that p\>0.05, so we use simple t-test assuming variance is equal.
+
+```{r, echo=FALSE}
+score_school_category_2 |>
+  levene_test(score_ratio ~ category)
+```
+From the levene test we can see that p\>0.05, so we use simple t-test assuming variance is equal.
+
+```{r, echo=FALSE}
+t.test(score_ratio ~ category, data = score_school_category_2, var.equal=TRUE)
+```
+
+The p-value is 0.84 which is not less than p value of 0.05. So we fail to reject the null hypothesis that there is no significant difference between score ratio in different college categories in year 2 as well.
+
+## Ethically Produced Rate and Budget
+
+We performed a linear regression analysis here where the Total Budget is the independent variable and the Ethically Produced Rate is the dependent variable. 
+
+- **Null Hypothesis** $H_0$: $\beta = 0$ : There is no association between the independent and dependent variable 
+- **Alternative Hypothesis** $H_0$: $\beta \neq 0$ : There is statistically significant association between the independent and dependent variable.
+
+```{r, include=FALSE}
+combined_total_ethical_rate <- combined |>
+  dplyr::select(`Ethically Produced Rate Year 1`, `Ethically Produced Rate Year 2`, `Total food and beverage expenditures Year 2`, `Total food and beverage expenditures  Year 1`
+  ) |>
+  rename(
+    `Year 1_E` = `Ethically Produced Rate Year 1`,
+    `Year 2_E` = `Ethically Produced Rate Year 2`,
+    `Year 1_T` = `Total food and beverage expenditures  Year 1`,
+    `Year 2_T` = `Total food and beverage expenditures Year 2`
+  ) |>
+   mutate(
+    `Year 1_T` = as.numeric(`Year 1_T`),
+    `Year 2_T` = as.numeric(`Year 2_T`),
+    `Year 1_E` = as.numeric(`Year 1_E`),
+    `Year 2_E`= as.numeric(`Year 2_E`)
+  )
+
+```
+
+```{r, include=FALSE}
+library(tidyr)
+combined_total_ethical_rate <- combined_total_ethical_rate  |>
+  pivot_longer(
+    cols = c(`Year 1_E`, `Year 2_E`),
+    names_to = "Ethical Year",                        
+    values_to = "Ethically Produced Rate"                       
+  ) |>
+  pivot_longer(
+    cols = c(`Year 1_T`, `Year 2_T`),
+    names_to = "Budget Year",
+    values_to = "Total Budget"
+  )
+```
+
+```{r, include=FALSE}
+total_ethical_cleaned <- combined_total_ethical_rate  |>
+  dplyr:: select("Ethically Produced Rate"  , "Total Budget")
+  #filter(!is.na("Ethically Produced Rate")) |>
+    #filter(!is.na(`Total Budget`)) 
+total_ethical_cleaned
+
+```
+
+```{r, include=FALSE}
+total_ethical_cleaned  <- total_ethical_cleaned |>
+  filter(!is.na(`Ethically Produced Rate`)) |>
+    filter(!is.na(`Total Budget`)) 
+total_ethical_cleaned
+
+```
+
+```{r fig-regression-ethical, fig.cap="Scatterplot Showing Association Between Budget and Ethical Production Rate", echo=FALSE}
+library(ggplot2)
+ggplot(
+  data = total_ethical_cleaned,
+  mapping = aes(
+    x = `Total Budget`,
+    y = `Ethically Produced Rate`
+  )
+) + 
+  theme_classic()+
+  geom_point()+
+  geom_smooth(method = "lm", se = FALSE, color = "red")
+```
+
+From @fig-regression-ethical, there is a weak positive association between the two variable.
+
+```{r, include=FALSE}
+library(janitor)
+cleaned_ethical_rate <- clean_names(total_ethical_cleaned)
+
+glimpse(total_ethical_cleaned)
+cleaned_ethical_rate
+  
+```
+
+The resulting model shows that there is no statistically significant association between the two variable. (t = 1.558 with 98 degrees of freedom, p \>0.05) 
+
+ **Linear equation** :Ethically Produced Rate = 6.825+ 0.0000001672 \* Total Budget
+
+```{r, echo=FALSE}
+ethical_budget_model =lm( ethically_produced_rate ~ total_budget, data= cleaned_ethical_rate)
+summary(ethical_budget_model)
+```
+
+So it can be concluded that there is no statistically significant association between ethically produced rate and total expenditure on food and dining.Any coefficient we get might be artifact due to data limitation.
+
+## Budget Class - Ethically Produced Rate
+
+In this part, we will conduct an ANOVA test to measure any significant differences between the mean ethically produced rate among the three budget classes (@tbl-budgetclass)
+
+- **Null Hypothesis** ($H_0$): All means are equal,
+$$\mu_1 = \mu_2 = \mu_3$$
+-  **Alternative Hypothesis**($H_1$): At least one budget class mean ethically produced rate is different from others.
+
+```{r, include=FALSE}
+class_ethical <- combined |>
+  
+  dplyr:: select(`Ethically Produced Rate Year 1`, `Ethically Produced Rate Year 2`, `Budget Class Year 1`)|>
+  mutate("budget_class" = `Budget Class Year 1`)|>
+  dplyr::select(budget_class, `Ethically Produced Rate Year 1`, `Ethically Produced Rate Year 2`) |>
+  mutate(`Ethically Produced Rate Year 1`= as.numeric(`Ethically Produced Rate Year 1`))|>
+    mutate(`Ethically Produced Rate Year 2`= as.numeric(`Ethically Produced Rate Year 2`))
+class_ethical
+```
+
+```{r, include=FALSE}
+class_ethical <- class_ethical |>
+  pivot_longer(
+    cols = c(`Ethically Produced Rate Year 1`, `Ethically Produced Rate Year 2`),
+    names_to = "Year",
+    values_to = "value"
+  )
+  
+
+```
+
+```{r, include=FALSE}
+class_ethical_result <- class_ethical |> 
+  dplyr:: select(budget_class, value)|>
+  filter(!is.na(budget_class))|>
+  filter(!is.na(value))|>
+  rename(ethically_produced_rate = value)|>
+  mutate(budget_class = factor(budget_class))
+
+
+```
+
+```{r, echo=FALSE}
+ethical_summary_1<- class_ethical_result |>
+  group_by(budget_class) |>
+  summarize(mean_rate = mean(ethically_produced_rate),std.dev_rate = sd(ethically_produced_rate),std.err=sd(ethically_produced_rate)/sqrt(n()))
+ethical_summary_1
+```
+
+From the summary table, we can see that the p\>0.05 (significance level). So it is not statistically significant.So we fail to reject the null hypothesis stating that all budget class have equal mean ethically produced rate. 
+
+Implying that, the budget classes (lower and higher both) is not significantly associated with ethically produced rate. An institution with lower budget might perform similarly in terms of ethical produce compared to an institution with higher budget. 
+
+
+```{r, echo= FALSE}
+one.way.ethical <- aov(ethically_produced_rate~  budget_class, data = class_ethical_result)
+summary(one.way.ethical)
+```
+
+```{r, echo=FALSE}
+anova(one.way.ethical)
+```
+
+
+## Score ratio over the years
+
+We will analyse how the score ratios have changed between the year 1 and year 2 using a paired t-test method.
+
+First we will check if the data fulfills the conditions for conducting the paired t-test. - The sample size \> 30, so we do not need to check if it follows a normal distribution - The samples are paired since they were collected from measuring twice the score ratio of the same institutions.
+
+- **Null Hypothesis** ($H_0$): $\mu_d = 0$; the mean difference between the paired score ratios is zero.  
+- **Alternative Hypothesis** ($H_1$): $\mu_d \neq 0$; the mean difference between the paired score ratios is not zero.
+
+```{r, include=FALSE}
+score_years <- combined |>
+  dplyr:: select(`Score ratio Year 1`, `Score ratio Year 2`)|>
+  filter(!is.na(`Score ratio Year 1`)) |>
+  filter(!is.na(`Score ratio Year 2`))
+score_years
+```
+
+```{r, include=FALSE}
+score_year_plot <- score_years |>
+  pivot_longer(
+    cols = c(`Score ratio Year 1`, `Score ratio Year 2`),
+    names_to = "Year",
+    values_to = "Score"
+  )
+score_year_plot
+```
+
+Initially, to visualize the distribution of score ratio we use a box plot:
+
+```{r fig-dist, fig.cap = "", echo=FALSE}
+ggboxplot(score_year_plot,
+          x = "Year", y = "Score", 
+          color = "Year",
+          palette = c("#00AFBB", "#E7B800"),
+          add = "jitter",
+          order = c("Score ratio Year 1", "Score ratio Year 2"),
+          ylab = "Score", xlab = "Years")+
+  theme_classic()+
+  coord_flip()
+  
+```
+
+@fig-dist shows that that the median is almost similar.
+
+```{r, echo=FALSE}
+score_year_result <- t.test(  score_years$`Score ratio Year 1`, score_years$`Score ratio Year 2`, paired = TRUE, alternative = "two.sided"
+                              )
+score_year_result
+```
+The mean difference (Year 1- Year 2) is 0.0182916; which is not statistically significant. We fail to reject the null hypothesis. Implying that score ratios remained consistent over the years. The institutions had a consistent dining performance over the course of two consecutive reporting years.
+
+## Ethically produced rate over the years
+
+We will analyse how the ethically produced rates have changed between the year 1 and year 2 using a paired t-test method.
+
+First we will check if the data fulfills the conditions for conducting the paired t-test.
+
+- The sample size \< 30, so we do need to check if it follows a normal distribution
+
+```{r, include=FALSE}
+ethical_years <- combined |>
+  dplyr:: select(`Ethically Produced Rate Year 1`, `Ethically Produced Rate Year 2`)|>
+  filter(!is.na(`Ethically Produced Rate Year 1`)) |>
+  filter(!is.na(`Ethically Produced Rate Year 2`))|>
+  mutate(`Ethically Produced Rate Year 1`= as.numeric(`Ethically Produced Rate Year 1`))|>
+  mutate(`Ethically Produced Rate Year 2`= as.numeric(`Ethically Produced Rate Year 2`))
+ethical_years
+```
+
+```{r}
+shapiro.test(ethical_years$`Ethically Produced Rate Year 1`)
+shapiro.test(ethical_years$`Ethically Produced Rate Year 2`)
+```
+
+We can see that they do not follow a normal data distribution. For this, a rank ordered test is better here but it is outside of the study's scope.
+
+## Association between rating status & category of institutions
+
+To compare between the two categorical variable rating status and category, we use chi-squared test of independence.
+
+```{r, include=FALSE}
+rate_category<- combined |>
+  dplyr:: select(`Rating Status`, Status)|>
+  filter(`Rating Status` == c( "Silver"  ,      "Gold", "Bronze", "Platinum"    ))|>
+  rename(Category = Status)|>
+  group_by(Category, `Rating Status`)|>
+  summarize(count = n())
+
+
+
+rate_category
+```
+
+```{r, include=FALSE}
+tab_rate_category<-tibble::tribble(~Category,~Rating,~count,
+                           "Flagship", "Gold", 4,
+                            "Flagship", "Platinum", 1,
+                            "Flagship", "Silver", 3,
+                            "Flagship", "Bronze", 0,
+                           
+                          "Private", "Gold", 4,
+                            "Private", "Platinum", 0,
+                            "Private", "Silver", 0,
+                            "Private", "Bronze", 1,
+                           ) |>
+  tidyr::pivot_wider(names_from = Rating, values_from=count) |>
+  tibble::column_to_rownames(var="Category") |>
+  as.matrix() |>
+  as.table()
+tab_rate_category
+```
+
+```{r, echo=FALSE}
+tab_rate_category |>
+  chisq.test(correct = FALSE)
+```
+
+```{r, echo=FALSE}
+library(vcd)
+assocstats(tab_rate_category)
+```
+
+```{r fig-mosaic, fig.cap = "", echo=FALSE}
+mosaic(tab_rate_category, gp=shading_Friendly,
+labeling=labeling_residuals)
+```
+
+Cramer's V is 0.592 which means it has a large effect size. Sample size is small; there is a probable association however given small sample size and too much variability - that causes insignificant p value.
+
+From the @fig-mosaic, we can see for private institutions the most probable rating is Gold and the next likely rating is Bronze. But it is much less likely than Gold. For flagship institutions, the probability of having a gold status is less than expected (if there were no difference between the category of institutions)
+
+## Rating status & Ethically produced rate
+
+In this part, we will conduct an ANOVA test to measure any significant differences between the mean ethically produced rate among the rating statuses (@sec-rating-status)
+
+- **Null Hypothesis** ($H_0$): All rating status pairs have equal mean ethically produced rates:  
+  $\mu_{\text{Gold}} = \mu_{\text{Platinum}} = \mu_{\text{Silver}} = \mu_{\text{Not Available}}$
+  
+- **Alternative Hypothesis** ($H_1$): At least one pair of rating statuses has a different mean ethically produced rate.
+
+
+The significance level is 0.01 here with a confidence level of 90%
+
+```{r, include=FALSE}
+rate_ethical <- combined |>
+  dplyr:: select(`Rating Status`, `Ethically Produced Rate Year 1`)|>
+rename (rating_status = `Rating Status`,
+        ethical_rate = `Ethically Produced Rate Year 1`)|>
+  filter(!is.na(ethical_rate))|>
+  mutate(rating_status=factor(rating_status))
+rate_ethical
+```
+
+```{r, echo=FALSE}
+one.way.ratethical <- aov(ethical_rate ~ rating_status, data = rate_ethical)
+summary(one.way.ratethical)
+```
+
+From the results we can see that the p \< 0.01; so it is statistically significant. It can be concluded that at least one of the rating status above has a different mean ethically produced rate.
+
+### Post-Hoc ANOVA Analysis
+
+Now that we know that it is statistically significant, we will conduct Post-Hoc analysis to specify which mean is different. Again, here the significance level is 0.01 with a 90% confidence interval.
+
+```{r, echo=FALSE}
+posthoc_analysis <- emmeans(one.way.ratethical, pairwise ~ rating_status,
+        adjust = "bonferroni",
+        level = 0.90)
+summary(posthoc_analysis)
+
+
+```
+
+When analyzing the p-values, Not Available - Silver has a p value \< 0.1, so at 90% confidence level these two groups have statistically significant different mean ethically produced rate.However it is important to note that at 95% confidence level, the result is not significant.
+
+It means that Not Available-Silver pair has a different statistically significant mean ethically produced rate. Not available groups have a higher mean ethically produced rate than silver status. Noting that, Not available means that the institutions no longer have an active rating(so all of their ratings have expired), there is a possibility of the expired ratings being gold, platinum, silver or bronze.
+
+Including all the expired rating status would help the study more into truly understanding the difference between the gold, platinum, silver or bronze ratings but this is outside the study's scope.
+
+```{r,include=FALSE}
+state_avg <- combined |>
+  dplyr:: select(`State Name`, `Total food and beverage expenditures  Year 1`) |>
+  rename(food_budget = `Total food and beverage expenditures  Year 1`)|>
+  rename(state_names = `State Name`)
+```
+
+```{r,include=FALSE}
+state_avg_grouped <- state_avg |>
+group_by(state_names)|>
+  summarize(total_food_budget = mean(food_budget, na.arm = TRUE))|>
+
+mutate(total_food_budget = as.numeric(total_food_budget))|>
+filter(!is.na(total_food_budget))
+state_avg_grouped
+```
+
+```{r,include=FALSE}
+library(USAboundaries)
+states_sf <- us_states()
+library(dplyr)
+library(sf)
+library(USAboundaries)
+```
+
+```{r,include=FALSE}
+states_sf <- states_sf |>
+  mutate(state_abbr = tolower(state_abbr))
+
+state_avg_total <- state_avg_grouped |>
+  mutate(state_names = tolower(state_names))
+```
+
+```{r,include=FALSE}
+merged_state_total <- states_sf |>
+  left_join(state_avg_total, by = c("state_abbr" = "state_names"))
+
+```
+
+```{r,include=FALSE}
+library(dplyr)
+merged_state_total_sf <-merged_state_total |>
+  filter(!is.na(total_food_budget)) |>
+  
+  
+mutate(state_name_upper = toupper(state_abbr))|>
+  filter(!is.na(state_name_upper))
+merged_state_total_sf
+```
+
+## Total Food and Beverage Expenditure Across the United States
+
+To visualize which colleges across the states in the US has highest food and beverage expenditure, we will map it by two categories : Flagship, Private.
+
+It is important to note, we are taking their one year expenditure. Since the reporting years are different for each college, we are looking at a range of years. All of the colleges' data hence come from the year 2022-2025.
+
+```{r,include=FALSE}
+library(dplyr)
+state_avg_faceted <- combined |>
+  dplyr:: select(Status,  `Total food and beverage expenditures  Year 1`, `State Name`)|>
+  
+  rename(food_budget = `Total food and beverage expenditures  Year 1`)|>
+  rename(state_names = `State Name`)
+state_avg_faceted
+```
+
+```{r,include=FALSE}
+states_sf <- states_sf |>
+  mutate(state_abbr = tolower(state_abbr))
+
+state_avg_total_faceted <- state_avg_faceted |>
+  mutate(state_names = tolower(state_names))
+```
+
+```{r,include=FALSE}
+merged_state_total_faceted <- states_sf |>
+  left_join(state_avg_total_faceted, by = c("state_abbr" = "state_names"))
+
+```
+
+```{r, include=FALSE}
+merged_state_total_faceted <- merged_state_total_faceted |>
+  mutate(state_name_upper = toupper(state_abbr))|>
+  filter(!is.na(Status))
+merged_state_total_faceted
+  
+```
+
+```{r,include=FALSE}
+map_budget<- tm_shape(merged_state_total_faceted) +
+  tm_polygons()
+map_budget
+```
+
+```{r fig-state-total, fig.cap = "Total Food and Beverage Expenditure Across the United States (2022-2025)", echo=FALSE}
+
+tmap_mode("plot")
+map_budget<- tm_shape(merged_state_total_faceted) +
+  tm_fill("food_budget",
+        style = "quantile",
+        palette = "YlGnBu",
+
+        thres.poly = 0)+
+
+  tm_facets(by = "Status", 
+            free.coords = TRUE, 
+            drop.shapes = TRUE) +
+  tm_layout(
+    legend.show = TRUE,
+            title.position = c("center", "top"), 
+            title.size = 2)+
+  tm_borders(alpha = 0.5)+
+  tm_text(text =  "state_name_upper", size = 0.4,
+          remove.overlap = TRUE, 
+        fontface = "bold",
+        just = "left",
+         shadow = TRUE)+
+  
+tm_style("gray") 
+map_budget
+
+```
+
+From the @fig-state-total, the darker region represents higher amount of money spent.
+
+In the flagship institutions:
+
+These are the following states that have higher expenditure: California (CA), Illinois (IL), Indiana (IN), Virginia (VA), Connecticut (CT), Massachusetts (MA), New York (NY)
+
+These are the following states that have lesser expenditure: Montana (MT), Arizona (AZ), Kansas (KS), Iowa (IA), Virginia (VA), New Hampshire (NH)
+
+Florida has the least expenditure.
+
+In the private institutions:
+
+These are the following states that have higher expenditure: Washington (WA), Virginia (VA), Wisconsin (WI), Ohio (OH), Georgia (GA), New Jersey (NJ)
+
+These are the following states that have lesser expenditure: California (CA), Michigan (MI), New York (NY), North Carolina (NC), Maine (ME), New Hampshire (NH)
+
+Now that we know which states have higher expenditure, we see if the same states have similar statistic on ethically produced rate.
+
+## Ethically Produced Rate Comparison Across US States
+
+STARS AASHE has a field for institutions to report their ethically/sustainable produced rate for the institutions {#sec-intro-stars} and {#sec-intro-ceeds}.
+
+### Flagship
+
+The plot in the @fig-ethicalrate-flagship explains the distribution of ethically produced rate across flagship US colleges in different states. The black line represents the average ethically produced rate for all colleges which is around 8% to 9% here. The x axis represents the categorical variable : States and the y axis represents Ethically Produced Rate of foods used in dining. The states below the line produces below average ethical food produce. The states above the line produces more than average ethical food produce.
+
+Predictably so, California, Vermont and Massachusetts have the highest mean rate of ethically produced rate.Followed by Montana, Colorado,North Carolina and Utah. Pennsylvania, Connecticut, Iowa, Texas, Illinois, New York, Louisiana, Maryland, Virginia has lower than average mean rate of ethically produced rate.
+
+```{r, include=FALSE}
+library(dplyr)
+library(forcats)
+```
+
+```{r, include=FALSE}
+library(tidyverse)
+states_ethical_rate_1 <- combined|>
+  dplyr:: select(`State Name`, `Ethically Produced Rate Year 1`, `Ethically Produced Rate Year 2`, Status)|>
+
+  mutate(`Ethically Produced Rate Year 1` = as.numeric(`Ethically Produced Rate Year 1`))|>
+  mutate(`Ethically Produced Rate Year 2` = as.numeric(`Ethically Produced Rate Year 2`))|>
+  pivot_longer(cols = c(`Ethically Produced Rate Year 1`, `Ethically Produced Rate Year 2`),
+               names_to = "Year",
+               values_to = "value")|>
+  filter(!is.na(value)) |>
+  filter(Status == "Flagship")
+states_ethical_rate_1
+```
+
+```{r, include=FALSE}
+states_ethical_rate_2 <- combined|>
+  dplyr:: select(`State Name`, `Ethically Produced Rate Year 1`, `Ethically Produced Rate Year 2`, Status)|>
+
+  mutate(`Ethically Produced Rate Year 1` = as.numeric(`Ethically Produced Rate Year 1`))|>
+  mutate(`Ethically Produced Rate Year 2` = as.numeric(`Ethically Produced Rate Year 2`))|>
+  pivot_longer(cols = c(`Ethically Produced Rate Year 1`, `Ethically Produced Rate Year 2`),
+               names_to = "Year",
+               values_to = "value")|>
+  filter(!is.na(value)) |>
+  filter(Status == "Private")
+states_ethical_rate_2
+```
+
+```{r, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(forcats)
+plot_states_ethical_1 <- states_ethical_rate_1 |>
+  group_by(`State Name`) |>
+
+  summarize(mean_rate = mean(value, na.rm = TRUE)) |>
+  mutate(`State Name` = as.factor(`State Name`)) |>
+  mutate(order = fct_reorder(`State Name`, mean_rate))
+plot_states_ethical_1
+```
+
+```{r, include=FALSE}
+plot_states_ethical_2 <- states_ethical_rate_2 |>
+  group_by(`State Name`) |>
+
+  summarize(mean_rate = mean(value, na.rm = TRUE)) |>
+  mutate(`State Name` = as.factor(`State Name`)) |>
+  mutate(order = fct_reorder(`State Name`, mean_rate))
+plot_states_ethical_2
+```
+
+```{r tbl:private-ethical, include=FALSE}
+plot_states_ethical_private<- plot_states_ethical_2|>
+  dplyr::select(`State Name`, mean_rate)
+plot_states_ethical_private
+```
+
+```{r, include=FALSE}
+overall_mean_1 <- mean(plot_states_ethical_1$mean_rate, na.rm = TRUE)
+overall_mean_2 <-mean(plot_states_ethical_2$mean_rate, na.rm = TRUE)
+```
+
+```{r fig-ethicalrate-flagship,fig.cap="", echo=FALSE}
+
+plotted_states_ethical_flagship <- plot_states_ethical_1 |>
+  ggplot(aes(x = order, y = mean_rate)) +
+  
+  geom_hline(yintercept = overall_mean_1,
+             color = "black", size = 1) +
+  
+  geom_segment(aes(x = order,
+                   xend = order,
+                   y = overall_mean_1,
+                   yend = mean_rate),
+               color = "black") +
+  
+  geom_point(aes(color = mean_rate), size = 4) +
+  
+  scale_color_gradient(low = "yellow", high = "darkblue") +
+  
+  labs(title = "Ethical Rate Comparison(Flagship)",
+       x = "", y = "Rate")+
+  
+  
+ theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, color = "black"),
+    axis.text.y = element_text(face = "bold", color = "black"),
+    axis.title.y = element_text(color = "black"),
+    plot.title = element_text(hjust = 0.5, size = 15, face = "bold", color = "black"),
+    axis.line = element_line(color = "black"),
+plot.caption = element_text(hjust = 0.4),
+    axis.ticks = element_line(color = "black"),
+    panel.background = element_rect(fill = "white"),
+    plot.background = element_rect(fill = "white"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    legend.position = "none"
+  )
+  
+plotted_states_ethical_flagship
+```
+
+### Private
+
+The plot in the @fig-ethicalrate-priv explains the distribution of ethically produced rate across private universities in the US across different states. More colleges fall below average threshold rate of ethically produced rate for all private institutions.Texas,California and Georgia has the highest rate of ethically produced product.
+
+```{r fig-ethicalrate-priv,fig.cap="", echo=FALSE}
+
+plotted_states_ethical_private <- plot_states_ethical_2 |>
+  ggplot(aes(x = order, y = mean_rate)) +
+  
+  geom_hline(yintercept = overall_mean_1,
+             color = "black", size = 1) +
+  
+  geom_segment(aes(x = order,
+                   xend = order,
+                   y = overall_mean_2,
+                   yend = mean_rate),
+               color = "black") +
+  
+  geom_point(aes(color = mean_rate), size = 4) +
+  
+  scale_color_gradient(low = "yellow", high = "darkblue") +
+  
+  labs(title = "Ethical Rate Comparison(Private)",
+       x = "", y = "Rate")+
+  
+  
+ theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, color = "black"),
+    axis.text.y = element_text(face = "bold", color = "black"),
+    axis.title.y = element_text(color = "black"),
+    plot.title = element_text(hjust = 0.5, size = 15, face = "bold", color = "black"),
+    axis.line = element_line(color = "black"),
+plot.caption = element_text(hjust = 0.4),
+    axis.ticks = element_line(color = "black"),
+    panel.background = element_rect(fill = "white"),
+    plot.background = element_rect(fill = "white"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    legend.position = "none"
+  )
+  
+plotted_states_ethical_private
+```
+
+## Score ratio in Institutes Across the United States
+
+Now, we are going to visualize how the score ratio differs in institutions across states. We calculated the average score ratio over the two available years' for the institutions across states. The grouping variable here is states (which includes both flagship and private institutions). We have data ranging in the year from 2012-2025.
+
+```{r, include=FALSE}
+score_ratio_state <- combined |>
+ dplyr:: select(`State Name`, `Score ratio Year 1`, `Score ratio Year 2`)|>
+  group_by(`State Name`) |>
+  
+
+
+   mutate(across(everything(), ~replace_na(.x, 0))) |>
+mutate(avg_ratio = rowMeans(across(c(`Score ratio Year 1`, `Score ratio Year 2`)), na.rm = TRUE))|>
+  filter(!is.na(avg_ratio))
+  #group_by(`State Name`) |>
+  #mutate (total_avg_ratio = mean(avg_ratio))
+
+score_ratio_state
+```
+
+```{r, include=FALSE}
+total_score_ratio_state <- score_ratio_state |>
+  group_by(`State Name`) |>
+  mutate(total_avg_ratio = mean(avg_ratio))|>
+  distinct(`State Name`, total_avg_ratio, .keep_all = TRUE) |>
+  dplyr::select(`State Name`, total_avg_ratio) 
+
+
+
+total_score_ratio_state
+```
+
+```{r, include=FALSE}
+states_sf <- us_states()
+```
+
+```{r, include=FALSE}
+states_sf <- us_states(resolution = "low")
+```
+
+```{r, include=FALSE}
+us_states_proj <- st_transform(states_sf, 2163)
+```
+
+```{r, include=FALSE}
+us_states_proj <- us_states_proj |>
+  mutate(state_abbr = tolower(state_abbr))
+```
+
+```{r, include=FALSE}
+total_score_ratio_state <- total_score_ratio_state |>
+  mutate(`State Name` = tolower(`State Name`))|>
+rename(state_name = `State Name`)
+
+```
+
+```{r, include=FALSE}
+merged_state_score_ratio <- us_states_proj  |>
+  left_join(total_score_ratio_state, by = c("state_abbr" = "state_name"))
+```
+
+```{r, include=FALSE}
+merged_state_score_ratio <- merged_state_score_ratio |>
+  filter(state_abbr != "nm")
+
+```
+
+```{r, include=FALSE}
+merged_state_score_ratio_ncont <- 
+  cartogram_ncont(merged_state_score_ratio,
+                  weight = "total_avg_ratio") 
+```
+
+```{r, include=FALSE}
+label_fun <- function(x) paste0(round(x, 2))
+
+```
+
+```{r, include=FALSE}
+state_centroids <- merged_state_score_ratio_ncont|>
+  st_centroid() |> 
+  mutate(
+    lon = st_coordinates(geometry)[,1],
+    lat = st_coordinates(geometry)[,2]
+  ) |>
+  mutate(state_abbr = toupper(state_abbr))
+```
+
+```{r fig-ratio-state, fig.cap=" ", echo=FALSE}
+m3 <- 
+ggplot(merged_state_score_ratio_ncont) +
+  geom_sf(aes(fill = total_avg_ratio), color = "white") +
+   scale_fill_distiller(
+    palette = "YlOrRd",
+    direction = 1,   
+    labels = label_fun,
+    n.breaks = 15,
+    guide = guide_colorsteps(
+      barwidth = 15,
+      barheight = 0.5,
+      title = "Average Ratio",
+      title.position = "right",
+      title.vjust = 0.1)) +
+  theme_void() +
+  theme(
+    plot.title = element_text(hjust = 0.5, margin = margin(b = 10)),
+    legend.position = "top",
+    legend.margin = margin(t = 10, b = 2),
+    legend.title = element_text(size = 7),
+    legend.text = element_text(angle = 45, margin = margin(t = 5))
+  ) +
+  labs(title = "Sustainably Produced Dining Food Score Ratio in US States(2012-2025)") +
+  
+geom_text(data = state_centroids, 
+          aes(x = lon, y = lat, label = state_abbr)
+          , size = 1.6, 
+          position = position_jitter(width = 0.1, height = 0.1))
+
+  
+m3
+```
+
+From the @fig-ratio-state, we can see Georgia, Oklahoma has the highest average score ratio among all of the states.The more the score ratio the darker the region. The lighter (yellow) regions indicate less score ratio and the orange regions indicate medium score ratio compared to the other two parts.
+
+# Analysis
+
+As discussed in @sec-research-smith, some of categories have a higher local sourcing in both years (2017 and 2018) two years. The proportion of a few categories which are local have increased over the course of 2017-2018 compared to the non-local items. It indicates Smith College's effort to promote sustainability in the dining impact area. This is a shift toward ethical and sustainable sourcing practice.We also explored the association between item cost and the likelihood of it being locally sourced using logistic regression. For both the years 2017 and 2018, lower cost were more clustered around an item being non-local. The regression analysis tells us that the model performs well(better in 2018 compared to 2017) predicting an item being local/non-local. In 2023, Smith College's highest spending was allocated to Real food. These spending patterns highlight the college's commitment to support local food sources and sustainable food procurement.
+
+Next, as discussed in @sec-research-consortium, we can see that Hampshire College has the highest sustainable produce percentage and the second highest local produce percentage. According to @hampshire, this college has focused on raising food in a way that is more climate resilient. The Hampshire College Farm is not a commercial firm rather it focuses more on adhering to student experience.This farm produces meat, vegetable and other produces to the college in its 80 acre area.They also partnered with a non profit named Momentum Ag--which solidifies its commitment towards strengthening local producers. Amherst College has the highest locally sourced produce share. According to Amherst @amherst, their Book and Plow Farm produces over 20,000 lbs of fresh produce each year. Their difference in percentage whether it is for local or sustainable may be a result of the availability of college owned farms, larger student body, and proximity to local production places. However, all of the colleges in the consortium show effort in local and sustainable produce
+
+Finally, on the @sec-results, we identified some pattern, trend, similarities and differences between flagship and private institutions.Flagship institutions consistently spent a higher amount of money than the private ones in the same state as seen in @fig-state-total. Given how higher score ratios have a positive correlation with an institutions food and beverage expenditure, higher the budget the higher score ratio. But score ratios stayed consistent for both flagship and private over the two years. Which means dining performance did not significantly differ for both categories in both years. While there were institutions that performed significantly better at times, they were considered outliers for the distribution.However, given their performance in the score ratio has not been statistically different in these two categories, indicating the private institutions are maintaining comparable performance with lesser expenditure. This can be due to the fact that flagship institutions have a larger student population.
+
+After analyzing the total expenditure and ethically produced rate - we found out that they are not associated, yet we recognized a trend at institutions. The average threshold of the mean ethically produced rate for both Flagship (@fig-ethicalrate-flagship) and Private (@fig-ethicalrate-priv) institutions was between 7% and 9%. More colleges fall below the average threshold in private institutions, whereas more colleges fall above the average threshold in flagship institutions. This suggests a minimal difference in ethical sourcing among flagship and private institutions.
+
+When we analyzed the rating statuses across these two categories, most of the private institutions had gold ratings. This is important to note that the ratings are based on overall performance and not just the dining area. If there were truly no difference between the categories, the probability of gold ratings are less than expected for flagship institutions. They had more diverse ratings (given that we took all flagship institutions into account compared to the randomly chosen colleges for each state). But this rating does not have any statistically significant association with ethically produced rate either.
+
+# Limitation
+
+While we were testing out for the changes in variables over the years, not all institutions provided all of the data requested by the STARS framework – that led to inconsistency in tests and might be a reason for statistically insignificant results. Some colleges had expired ratings and no active rating for any year so they were labelled as “not available”. Their lack of active rating might skew the results into making them less significant. We also chose all of the institutions for flagship colleges for each state but only chose one college per state (for private colleges) for the scope of this research project – that leads to data limitation and skewed results in state by state comparison across categories and summary results. It is a self reported tool, so there is a possibility of inconsistent information of data points across institutions. We are doing this comparison over 2 years and the years are not similar across all institutions. For example : some colleges have information about 2022 & 2023, some other colleges have information about 2017 & 2015. The year by year comparison might be biased due to how the socio-economic and geopolitical environment has changed over the years and might not be the same for all.
+
+# Future Scope of Work
+
+This study had a section where we did cross comparison on categories of institutions and years. However, given the analysis was for 2 years hence a longer term analysis (preferably for more than five years) might reveal more significant trends. With the data of all institutions per state, we can have more comprehensive understanding of the averages by each state.
