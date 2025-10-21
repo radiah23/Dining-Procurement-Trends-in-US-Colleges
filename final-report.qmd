@@ -61,34 +61,6 @@ library(gridExtra)
 
 ```
 
-# Acknowledgment
-
-I would like to express my deepest gratitude to my faculty advisor, Dr. Kementari Whitcher for being incredibly supportive not only as a teacher but also as a motivator every step of the way. In the past 8 weeks, there have been many times when working with a data set built from scratch felt intimidating, but with the supervision of Dr. Kementari Whitcher, I learnt to think as a statistician. This research would not have been possible without the amazing Statistical and Data Sciences Department at Smith College, which gave me unwavering support from the beginning. Furthermore, I would like to acknowledge Professor Randi Garcia, the chair of the department, whose support was pivotal to the completion of this project. I am grateful to every faculty member in the department who continues to be a source of inspiration through everything. Additionally, I am grateful for the generous funding from the Summer Undergraduate Research Fellowship at Smith College that made this project a reality. Special thanks to the Assistant Director of Sustainability at The Center for the Environment, Ecological Design and Sustainability (CEEDS), Becca Malloy – who provided Smith College dining data and graciously answered every question that came along the way. Last but not least, I would like to thank my niece, my other family members and my friends back home – who are my constant source of strength.
-
-\newpage
-
-# Abstract
-
-This study examines procurement of food purchases in the dining sector of higher studies institutions in the United States and how it evolved over the course of time. It discusses the aspects of ethically produced food, locally sourced food, dining budget and sustainability in colleges. The goal of this study is to explore this data set through exploratory data analysis and statistical tests. The data set used in this study was compiled from two sources. For Smith College-specific data, we collected them from the Center for the Environment, Ecological Design and Sustainability (CEEDS) at Smith College. For other colleges used in this study, we obtained data from a framework named the Sustainability Tracking Assessment & Rating System (STARS), created by the Association for the Advancement of Sustainability in Higher Education (AASHE). We aim to analyze how dining services have changed over the years in private and flagship institutions across the 50 states in the United States of America. The study will conduct both cross-institution analysis and within-institution analysis between these two categories. It investigated statistical analyses in this data set to identify any possible correlations between variables within the standards of the STARS framework. The statistical analysis methods included stratified random sampling, logistic regression, hypothesis testing (ANOVA, Repeated Measure ANOVA), T-test, One-way Chi Square, Two-way Chi Square, and Regression Analysis. The data in this study points to patterns in purchasing trends in universities and their effects on sustainability metrics (Budget class, Total Budget, Ethically Produced Rate, Locally produced food percentage etc.). The findings are divided into three areas: Smith College Trends in Food Purchasing, Five College Consortium Comparison on Locally Sourced Produce, and Institutional Comparisons Across the United States.
-
-\pagebreak
-
-# Introduction
-
-We will introduce the sources of the data used in this study.
-
-## STARS AASHE {#sec-intro-stars}
-
-The @stars framework created a sustainability rubric to score higher education institutions to ensure continued improvement in different areas, such as academics (AC), engagement (EN), operations (OP), and planning & administration (PA). These areas have sub sectors, which are sustainability course offerings, applied learning, sustainability research, responsible research and innovation, outreach and communication, co-curricular activities, staff engagement and training, sustainability and culture assessment, civic engagement, community partnerships, continuing education, shared facilities, inter-campus collaboration, building design and construction, building operations and maintenance, water use, ecologically managed grounds, energy use, greenhouse gas emissions, dining service procurement, food recovery, sustainable procurement, purchase goods, and materials management, Waste Generation and Recovery, Vehicle Fleet, Commute Modal Split, Air Travel,Sustainability Coordination, Commitments and Planning, Institutional Governance, Sustainable Investment Program, Investment Holdings, Institutional Climate, Racial and Ethnic Representation, Gender Parity, Affordability and Access, Student Success, Health, Safety and Well being, Employee Rights, Pay Equity, and Living Wage.
-
-The data set used in this study is extracted from the Operations sector, with the sub-sector of Dining Service Procurement (listed as OP7). Most of the universities in this study use the STARS version 2.2.For some occurrences it is listed from version 3.0 or version 2.1.
-
-The STARS framework awards institutions ratings of five levels: Platinum, Gold, Silver, Bronze, or Reporter.
-
-Under the Food and Dining impact area in the Operations category the total point available is 8 (version 2.2)
-
-This is how they breakdown the score :
-
 ```{r, include=FALSE}
 table <- data.frame(
   Credit = c("Food and Beverage Purchasing", "Sustainable Dining"),
@@ -104,174 +76,8 @@ kable(table,
 
 ```
 
-STARS framework also integrates itself with Sustainable Development Goals @SDG goals in the version 2.2 @tech-v2.2. Here is the flow of how each area correlates with fulfilling SDG Goals by the United Nations:
 
-![](images/image2.png)
 
-The data for creating this chart were extracted from the technical manual.[^1] The visualization was made with lucid chart[^2]
-
-[^1]: Page 178-179 in the version 2.2 technical manual.
-
-[^2]: https://www.lucidchart.com/ is a tool to make flow charts that we used to conceptualize the SDG goals written in the technical manual.
-
-The applicable criteria for this study depended on the availability of data points. For the majority of the data points, the score was out of 6, the other instances, it was out of 8 and 4. So the relevant credit areas are food and beverage percentage meeting sustainability criteria (6 credits) and dining services percentage spent with social impact suppliers (2 credits).
-
-The minimum requirements for these credits are assessed by 2 metrics in version 3.0:
-
--   Food and beverage expenditure
--   Supplier attributes
-
-The target to earn full points here are within 2 metrics as well:
-
--   Weighted cost of purchased food and beverages that meet sustainability criteria \>= Total food and Beverage spend
-
--   Social impact supplier spend needs to be equal to or higher than 10% of the whole dining budget
-
-Now the foods purchased by the institutions need to meet a certain sustainability or ethical criteria set by STARS AASHE. The standards here are:
-
--   I-FOAM Organics International or endorsed by them
--   ISO Type 1 ecolabel
--   ISEAL Alliance Member Organization
--   Global Ecolabelling Network Member Organization
--   Anchors in Action Aligned Framework
--   Monterey Bay Aquarium Seafood Watch
--   Participatory Guarantee System (PGS)
--   Short food supply chain (SFSC)
--   Small Producers' Symbol (SPP)
--   World Fair Trade Organization (WFTO) or Fair Trade Federation (FTF) membership
-
-In total, AASHE has 55 certifications for non-seafood items and 7 standards for seafood items around the world. The food categories falling into these certification categories are Fresh food (produce, eggs, meat, shellfish), Packaged/ready-to-eat foods (spices, oil, sugar, grains, baked goods, candies, frozen food, dairy products), beverages (sports drinks, fruit juices, tea, coffee, bottled water, and any liquids)
-
-The STARS framework has developed a decision criterion for different kinds of food types to be categorized as sustainable/ethical.
-
-Given it is a self reporting tool, these are the documentations used by the STARS framework.
-
--   The year the performance period ended for food and beverage expenditure
--   Sustainable/Ethically Produced Rate
--   Plant-based food rate
--   Inventory
--   Any data limitation
--   Methodology Description
-
-\
-This is how STARS defined their decision criteria in their technical manual of the 3.0.1 version @tech
-
-![](images/image5-01.png){fig-align="center"}
-
-The data for creating this chart were extracted from the technical manual.[^3] The visualization was made with lucid chart[^4]
-
-[^3]: Page 169-170 in the version 3.0.1 technical manual.
-
-[^4]: https://www.lucidchart.com/ is a tool to make flow charts that we used to conceptualize it.
-
-## CEEDS {#sec-intro-ceeds}
-
-CEEDS have collected data adhering to STARS framework.
-
-They use several categories to label food to indicate sustainability. Each of these categories are from a student-initiated national effort to have significant positive change in campus food systems in 2008.
-
--   Real Food : It is a holistic term to categorize food that caters to consumers, producers, communities and every stakeholders. In 2008, students and advisers came up with a framework that defines what foods fall under Real Food. It is designed to encourage sustainable and fair producers. The evaluation of production is also emphasized here. Ecologically Sound, Local, Humane and Fair are real food category.
-
--   Sustainable Food : This term is defined by the STARS framework with their certification in the @sec-intro-stars sector.
-
--   Local : The food needs to be procured by -
-
-    -   Nearby farms, ranches, boats and businesses that are locally owned
-    -   Mid size food businesses
-
-    However, each institutions reports "local" differently at times. According to @local, here is how colleges define their food as "local":
-
-    ![Source : Measuring Up: When, How, and Why to Define "Local"](images/clipboard-3697887925.png)
-
--   Fair : The workers need to be ensured of these rights-
-
-    -   Have a safe environment to work in
-
-    -   Receive fair compensation
-
-    -   Right to organize
-
-    -   Right to a grievance process
-
-    -   Equal opportunity for employment
-
--   Humane : Animals need to be ensured of these health conditions-
-
-    -   Low stress environment
-    -   Administer drugs only when diseases are diagnosed
-
-# Sampling Method {#sec-sample}
-
-There are two sampling methods that were used for this study. The first one is how STARS collects their data and the second one is how we built the data set used for this study.
-
-## STARS Framework {#sec-star-sample}
-
-The framework uses Representative Sampling — which means all of the samples in the population have an equal chance of being selected to represent the whole population.
-
-All of the reporting institutions have two choices: One year period purchases or a representative sample that includes one academic term or equivalent.
-
-However, there are some criterion that institutions need to consider while reporting.
-
--    Needs to be within the previous 3 years Seasonal purchases
-
--   Self operated/contracted dining service reports
-
--   Include retail outlets managed by institution/contractor
-
--   Exclude independent operators, vending etc
-
-## Research Method {#sec-research-method}
-
-This research used stratified random sampling to create the data set. One stratification variable was type of institution: Flagship Institutions and Private Institutions. The second variable was State, with all 50 US states and the District of Columbia included. This process of stratification was based on institution type and geographical location. First, we listed all the flagship and private institutions in the United States, with their states. Subsequently, we matched their data availability in the @aashe reports. Following that, we created two separate data sets, one for flagship, and the other for private universities.
-
-### Private Institutions
-
-We collected all of our data from the @aashe website.
-
-For each state, we had more than one private institution. We randomly selected one institution from each state. We faced two cases in this. The first case example was Florida; which had 13 private institutions. We chose a random number from 1-13 using a simple random number generator. We got the number 4; hence we chose the institution that was at the fourth place in our list. The second case example was in Colorado where we had 7 institutions. We randomly generated the number 5. However, the selected institution did not have the dining procurement data included in their report. In cases like this we moved to the immediate next institution, and kept progressing in order until we found valid dining data to use for the study.
-
-### Flagship Institutions
-
-Some of the states have multiple flagship universities (NY, TX, IN, WY), so we used all of them instead of randomly selecting one. The states not found in the later analysis are the ones that were not present in the STARS framework.
-
-After creating the two data sets; we compiled them all together and later cleaned them up. Below is the amount of data flow we created after processing and cleaning the data.
-
-## Data Selection Flow {#sec-data-selection}
-
-To clean the data set, the criteria for filtering out data rows/states were: - Absence of value in at least 50% of used variables for the analysis - No dining procurement data in any institutions in the entire state
-
-![Data Selection Flow for the Final Dataset](images/image4-01.png){fig-align="center"}
-
-# Research Questions {#sec-research-questions}
-
-In this study, we want to examine the dining sourcing and dining performance across three sectors: Smith College, the Five College Consortium, and colleges across the United States.
-
-## Smith College {#sec-research-smith}
-
--   Has the sourcing of local foods proportion have changed over the course of 2017-2018?
--   Is the likelihood of a food item being locally sourced associated with its cost?
-
-## Five College Consortium {#sec-research-consortium}
-
--   How do the sourcing of sustainable and local items in the dining area differ among five colleges?
-
-## All Colleges {#sec-research-all}
-
--   Do flagship institutions spend more money on dining than private institutions and how does it affect their score?
--   How does the dining performance score change over the years?
--   Does the STARS rating differ in institution categories?
--   How does the ethically produced rate differ in institution categories?
--   How are the key metric (adhered to STARS Framework) used in this study correlated across institutions?
-
-# Data Variables Used {#sec-data-variable}
-
-For this study, we selected variables among the available variables in STARS framework templates.
-
-## Budget Class {#sec-budget-class}
-
-There were 3 major ranges of budget institutions have created for themselves. It is important to note that it had 1 level noted in Canadian dollars so we converted it to fit in the 3 ranges. This is the total dining budget of each institution for the reporting period.
-
-We then divided the 3 ranges to 3 classes as shown in the table below
 
 ```{r, include=FALSE}
 table2 <- data.frame(
@@ -306,52 +112,8 @@ kable(table3, caption = "")
 ```
 
 
-## Ethically Produced Rate {#sec-ethical-rate}
 
-STARS provides an inventory template to institutions to document sustainable/ethical produces with proper justification of inclusion with these information : Product name, label, brand, description, certification of sustainability standard.
 
-## Year {#sec-year}
-
-The study reported two latest years of each institutions’ reports. The first latest year has been denoted as Year 1 and the second latest year has been denoted as Year 2.
-
-## Total Food and Beverage Expenditure {#sec-Total-Food-and-Beverage-Expenditure}
-
-Institutions need to report the following categories of food: Meat(including frozen or canned), Dairy (anything that includes milk), Poultry, Fish/Seafood, Eggs, Produce, Baked goods, Grocery/Staples, Coffee-Tea, Beverages. All of these categories need to be included to calculate the total food and beverage expenditure.
-
-## Category {#sec-Category}
-
-As mentioned above, the institutions reported in the database are divided into two categories: Flagship and Private.
-
-Flagship : Flagship universities are publicly funded research institutions which are the largest/oldest in each state.
-
-Private : Private universities are not typically funded by the government and often run on private endowment.
-
-## Rating Status{#sec-rating-status}
-
-There are five levels that STARS AASHE rates an institution. This is the total score breakdown from the technical manual that denotes the total score (on all of the combined sectors above) an institution needs to have. Reporter institutions are any that submitted a report, but do not have a minimum score that earns a STAR rating.
-
-This data is sourced from @stars
-
-![Minimum Percentage Score Needed for Achievement Levels in STARS V2.2](images/image7.png){fig-align="center"}
-
-# Results {#sec-results}
-
-We will do exploratory data analysis on this data set alongside statistical analysis to identify any association and patterns.
-
-This section will have three sub-sections:
-
--   **Smith College Analysis**\
-    Using the data we obtained from CEEDS, we will analyze the trends of dining sourcing between 2017, 2018, and 2023.
-
--   **Five College Consortium Analysis**\
-    We will analyze what percentage of spending was allocated for local products in each college to do a comparison.
-
--   **All Institutions Combined Analysis**\
-    We will conduct tests to identify trends and patterns across representative colleges from all U.S. states.
-
-## Smith College {#sec-smith-college}
-
-For analyzing the food procurement at Smith College, its' trend, and how the sourcing changed throughout time; we used the data sets of the year 2017, 2018 and 2023. It is important to note that 2023 data is not published in the STARS AASHE website. It is provided to us by CEEDS.
 
 ```{r, include=FALSE}
 library(readxl)
@@ -423,43 +185,7 @@ dplyr::select(logistical_regression_2017, Local_2017, Cost_2017)
 
 ```
 
-### Food source and Cost 
 
-This analysis will model relationship between food source (local vs non-local) and their cost through logistic regression. 
-
-The response binary variable is (Local_2017 and Local_2018) and the categorical predictor  variable is (Cost_2017 and Cost_2018) 
-
-In the response variable:
-
-- $1$ = The item is locally sourced  
-- $0$ = The item is not locally sourced
-
-We will test the following hypotheses:
-
-- **Null hypothesis** ($H_0$): $\beta = 0$  
-The source of procurement (local/non-local) has no effect on the cost.
-
-- **Alternative hypothesis** ($H_1$): $\beta \neq 0$  
-The source of procurement (local/non-local) has a significant effect on the cost.
-
-The significance level for this test is $p = 0.05$, and the confidence interval is $95%$.
-
-This analysis will be conducted for the years $2017$ and $2018$.
-
-
-#### 2017
-
-For this test, we used the variable local and cost for the year $2017$ to perform a logistic regression using a generalized linear model. This model examines the effect of cost on the probability of a food item being locally sourced. 
-
-
-```{r, echo=FALSE}
-fit2017<-glm(Local_2017 ~Cost_2017,family=binomial(link=logit),data=logistical_regression_2017)
-summary(fit2017)
-```
-
-According to the output shown above, the p value is $0.00052$ The p value is lower than the $0.05$ significance level; so the result is statistically significant. That means, the local/non local status has a statistically significant effect on the cost outcome.
-
-To visualize how well the model works, see @fig-logistic-regression-2017
 
 ```{r fig-logistic-regression-2017, echo=FALSE}
 
@@ -479,7 +205,6 @@ model_data <- model.frame(fit2017)
 
 ```
 
-Now to see how well the model works across every possible threshold (not just the significance level), we will calculate the area under the curve.
 
 ```{r fig-roc-2017, echo=FALSE}
 fit2017 <-glm(Local_2017 ~ Cost_2017, family=binomial, data=logistical_regression_2017)
@@ -489,12 +214,6 @@ auc_value <- auc(rocplot)
 
 text(x = 0.2, y = 0.2, labels = paste("AUC =", round(auc_value, 4)), adj = 0, cex = 1.2, col = "black")
 ```
-
-The higher the area under curve, the better the prediction power of the model. The range is 0 to 1. Here the area under the curve is 0.5683; which is better than baseline. Hence this is a significant predictor.
-
-To get better performance, we added another variable in the categorical variable (the squared amount of the cost), but the area under the curve increased slightly.So, the change is not significant.
-
-Given the nature of the data, there is a limited amount of data. With an addition of a significant variable (that we may not have) the model could work better.
 
 #### 2018
 
@@ -510,7 +229,6 @@ summary(fit2018)
 
 ```
 
-From the results we can see that the p value is $0.000000000013$ so p \< 0.05 (our significance level); so the result is statistically significant similar to 2017.
 
 ```{r fig-lr-2018 , echo=FALSE}
 lr_plot2 <-
@@ -547,23 +265,6 @@ rocplot <- roc(response = model_data_2$Local, predictor = fitted(fit2018))
 plot.roc(rocplot, legacy.axes=TRUE) # Specficity on x axis if legacy.axes=F
 auc(rocplot) # auc = area under ROC curve = concordance index
 ```
-
-The higher the area under curve, the better the prediction power of the model. The range is 0 to 1. Here the area under the curve is 0.7221; which is better than baseline. Hence this is a significant predictor.
-
-It can be concluded here that for both of the years, the products that cost higher were more likely to be local for Smith College.
-
-## Association between categories of food purchased and local procurement status
-
-Now to what extent is this local status of products associated with the categories Smith College purchased? Over the years (2017-18), Smith College has produced 7 consistent categories of food for their dining purposes. The categories are : 
-- Baked
-- Beverages
-- Dairy
-- Grocery
-- Meat
-- Produce
-
-
-We will use two-way chi square test of independence to test whether Category and Local-procurement status is associated or not.If they are not independent, then some categories have higher local proportion than the other.
 
 - **Null Hypothesis**  ($H_0$): The two variables are independent.
 
@@ -856,13 +557,6 @@ cost_distribution_plot  <- hchart(Book3_6
 cost_distribution_plot
 
 ```
-@fig-cash shows the sankey diagram to visualize the cash flow from year 2017 to 2018. The width of the bands represent how high or low the cash amount is. The thicker the band the higher the cost.
-
-Here we can see that the money spent on Beverages and Poultry stayed the same (the bands have almost the same width). For the other categories the band width decreased over time; which means that the money spent on these categories decreased from 2017 to 2018.
-
-## Amount distribution in all categories in 2 years at Smith College (2017-2018)
-
-We are now analyzing how have the amount of items bought in each category changed over the course of this two year.
 
 ```{r, fig-amount, fig.cap="", fig.width=8, fig.height=6, echo=FALSE}
 amount_distribution_plot <- hchart(Book3_6_2
@@ -880,14 +574,6 @@ amount_distribution_plot
 
 
 ```
-
-The @fig-amount shows that, most of the categories have increased in items except Meat category. It has decreased from 2017 to 2018.
-
-### Proportion of food type in 2023
-
-From @sec-intro-ceeds, we can see the categories of sustainable food Smith College has maintained in their dining system. 
-
-We have seen in 2017 and 2018 that Smith College has made effort to increase in locally sourced food. Depending on the data availability in 2023, we will see how Smith College allocated its dining money in all categories in the aforementioned section.
 
 
 ```{r, include=FALSE, error = TRUE}
@@ -922,31 +608,6 @@ plot
 
 ```
 
-@fig-tree-2023 shows that, Smith College spent the most amount of money in their Real Category.Following that, Local is the next category where second highest amount of money was spent.Fair and Humane Category had similar spending (around \$500000) which is the least in the range. Sustainable falls into a mid range in the money allocation.
-
-## Five College Consortium {#five-college-consortium}
-
-Five College Consortium consists of the five college in the Pioneer Valley area. The institutions are : University of Massachusetts Amherst, Smith College, Amherst College, Mount Holyoke College and Hampshire College.
-
-Among them, University of Massachusetts Amherst is the flagship university of Massachusetts. Now we will be conducting a cross-university analysis. We calculated each institutions’s total spending and looked over to the amount that was allocated to local spending—defined by the `Local` variable being marked as "1". We then added all the items that were labelled as local and divided that by the total spending to determine the proportion of their spending that was local.
-
-However, given the data availability, we used different years for each colleges.
-
--   Smith College = 2018
--   UMass Amherst = 2018
--   Mount Holyoke College = 2018
--   Hampshire College = 2021
--   Amherst College = 2019
-
-So the year range is 2018-2021 depending on usability of data keeping it all consistent across colleges. It is important to note University of Massachusetts Amherst did not have Local sourcing variable, so we reported their percentage from their website @umass 
-
-### Sustainably Produced Percentage Comparison: Smith vs UMass vs Hampshire
-
-For Smith College, sustainable food covers four major categories in 2018 : Local, Fair, Ecological, Humane. If any of the product identified as true for any of these categories, we categorized them as sustainable.
-
-For @umass, they signed the Real Food Challenge Commitment and identified food that were third party verified(organic or humane)/ local-community sources.
-
-For Hampshire College, they did not have categories specified. However they provided a percentage of food that were third party verified/local-community based.
 
 ```{r, include=FALSE}
 sustainable_five <- data.frame(
